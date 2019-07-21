@@ -154,11 +154,11 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 #ifdef WIN32
 			int pos = sPluginName.indexOf( ".dll" );
 #else
-#ifdef Q_OS_MACX
-			int pos = sPluginName.indexOf( ".dylib" );
-#else
+// #ifdef Q_OS_MACX
+			// int pos = sPluginName.indexOf( ".dylib" );
+// #else
 			int pos = sPluginName.indexOf( ".so" );
-#endif
+// #endif
 #endif
 			if ( pos == -1 ) {
 				continue;
