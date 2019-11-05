@@ -229,6 +229,11 @@ static int nsm_open_cb (const char *name,
 		
 		H2Core::Song *pCurrentSong = pHydrogen->getSong();
 		
+		std::cout << "\033[1;30m[Hydrogen]\033[32m Action type: " << 
+			currentAction.getType().toLocal8Bit().data() << "\033[0m" << std::endl;
+		
+		pActionManager->printActionMap();
+		
 		bool ok = pActionManager->handleAction( &currentAction );
 
 		if ( !ok ) {

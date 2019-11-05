@@ -1194,6 +1194,15 @@ bool MidiActionManager::handleAction( Action * pAction ) {
 	return false;
 }
 
+void MidiActionManager::printActionMap() {
+	
+	for ( auto const& aa : actionMap ) {
+		std::cout << "\033[1;30m[Hydrogen::MidiActionManager]\033[32m Registered action name: " 
+				  << aa.first << "\033[0m" << std::endl;
+	}
+	
+}
+
 bool MidiActionManager::isSongPathValid( const QString& songPath ) {
 	
 	QFileInfo songFileInfo = QFileInfo( songPath );

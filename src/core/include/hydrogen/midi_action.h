@@ -290,6 +290,8 @@ class MidiActionManager : public H2Core::Object
 		QStringList getEventList(){
 			return eventList;
 		}
+	
+	void printActionMap();
 
 		MidiActionManager();
 		~MidiActionManager();
