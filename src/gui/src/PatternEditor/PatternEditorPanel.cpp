@@ -891,7 +891,7 @@ void PatternEditorPanel::moveUpBtnClicked(Button *)
 	Hydrogen *engine = Hydrogen::get_instance();
 	int nSelectedInstrument = engine->getSelectedInstrumentNumber();
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	Song *pSong = engine->getSong();
 	InstrumentList *pInstrumentList = pSong->get_instrument_list();
@@ -899,13 +899,13 @@ void PatternEditorPanel::moveUpBtnClicked(Button *)
 	if ( ( nSelectedInstrument - 1 ) >= 0 ) {
 		pInstrumentList->swap( nSelectedInstrument -1, nSelectedInstrument );
 
-		AudioEngine::get_instance()->unlock();
+		Hydrogen::get_instance()->getAudioEngine()->unlock();
 		engine->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
 
 		pSong->set_is_modified( true );
 	}
 	else {
-		AudioEngine::get_instance()->unlock();
+		Hydrogen::get_instance()->getAudioEngine()->unlock();
 	}
 }
 
@@ -916,7 +916,7 @@ void PatternEditorPanel::moveDownBtnClicked(Button *)
 	Hydrogen *engine = Hydrogen::get_instance();
 	int nSelectedInstrument = engine->getSelectedInstrumentNumber();
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	Song *pSong = engine->getSong();
 	InstrumentList *pInstrumentList = pSong->get_instrument_list();
@@ -924,13 +924,13 @@ void PatternEditorPanel::moveDownBtnClicked(Button *)
 	if ( ( nSelectedInstrument + 1 ) < (int)pInstrumentList->size() ) {
 		pInstrumentList->swap( nSelectedInstrument, nSelectedInstrument + 1 );
 
-		AudioEngine::get_instance()->unlock();
+		Hydrogen::get_instance()->getAudioEngine()->unlock();
 		engine->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
 
 		pSong->set_is_modified( true );
 	}
 	else {
-		AudioEngine::get_instance()->unlock();
+		Hydrogen::get_instance()->getAudioEngine()->unlock();
 	}
 
 }

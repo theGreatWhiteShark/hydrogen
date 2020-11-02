@@ -34,23 +34,13 @@ namespace H2Core
 {
 
 
-AudioEngine* AudioEngine::__instance = nullptr;
 const char* AudioEngine::__class_name = "AudioEngine";
-
-
-void AudioEngine::create_instance()
-{
-	if( __instance == nullptr ) {
-		__instance = new AudioEngine;
-	}
-}
 
 AudioEngine::AudioEngine()
 		: Object( __class_name )
 		, m_pSampler( nullptr )
 		, m_pSynth( nullptr )
 {
-	__instance = this;
 	INFOLOG( "INIT" );
 
 	m_pSampler = std::make_shared<Sampler>();
@@ -61,8 +51,6 @@ AudioEngine::AudioEngine()
 #endif
 
 }
-
-
 
 AudioEngine::~AudioEngine()
 {

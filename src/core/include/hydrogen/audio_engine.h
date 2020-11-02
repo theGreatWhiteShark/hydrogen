@@ -63,18 +63,7 @@ class AudioEngine : public H2Core::Object
 {
 	H2_OBJECT
 public:
-	/**
-	 * If #__instance equals 0, a new AudioEngine singleton will
-	 * be created and stored in it.
-	 *
-	 * It is called in Hydrogen::audioEngine_init().
-	 */
-	static void create_instance();
-	/**
-	 * Returns a pointer to the current AudioEngine singleton
-	 * stored in #__instance.
-	 */
-	static AudioEngine* get_instance() { assert(__instance); return __instance; }
+	AudioEngine();
 	~AudioEngine();
 
 	/** Mutex locking of the AudioEngine.
@@ -89,7 +78,7 @@ public:
 	 *
 	 * Easy usage:  Use the #RIGHT_HERE macro like this...
 	 * \code{.cpp}
-	 *     AudioEngine::get_instance()->lock( RIGHT_HERE );
+	 *     Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 	 * \endcode
 	 *
 	 * More complex usage: The parameters @a file and @a function
@@ -161,13 +150,6 @@ public:
 	std::shared_ptr<Synth> getSynth();
 
 private:
-	/**
-	 * Object holding the current AudioEngine singleton. It is
-	 * initialized with NULL, set with create_instance(), and
-	 * accessed with get_instance().
-	 */
-	static AudioEngine* __instance;
-
 	/** Local instance of the Sampler. */
 	std::shared_ptr<Sampler> m_pSampler;
 	/** Local instance of the Synth. */
@@ -195,22 +177,6 @@ private:
 		    ///< used for logging the locking of the
 		    ///< AudioEngine. But neither it nor the
 		    ///< Logger::AELockTracing state is ever used.
-
-	/**
-	 * Constructor of the AudioEngine.
-	 *
-	 * - Assigns #__instance to itself.
-	 * - Initializes the Mutex of the AudioEngine #m_engineMutex
-	 *   by calling _pthread_mutex_init()_ (pthread.h) on its
-	 *   address.
-	 * - Assigns a new instance of the Sampler to #m_pSampler and of
-	 *   the Synth to #m_pSynth.
-	 * - Creates an instance of the Effects singleton. This call
-	 *   should not be necessary since this singleton was created
-	 *   right before creating the AudioEngine. But its costs are
-	 *   cheap, so I just keep it.
-	 */
-	AudioEngine();
 };
 
 };

@@ -1278,13 +1278,13 @@ void MainForm::onRestartAccelEvent()
 void MainForm::onBPMPlusAccelEvent()
 {
 	Hydrogen* pEngine = Hydrogen::get_instance();
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	Song* pSong = pEngine->getSong();
 	if (pSong->__bpm  < MAX_BPM) {
 		pEngine->setBPM( pSong->__bpm + 0.1 );
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 }
 
 
@@ -1292,13 +1292,13 @@ void MainForm::onBPMPlusAccelEvent()
 void MainForm::onBPMMinusAccelEvent()
 {
 	Hydrogen* pEngine = Hydrogen::get_instance();
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	Song* pSong = pEngine->getSong();
 	if (pSong->__bpm > MIN_BPM ) {
 		pEngine->setBPM( pSong->__bpm - 0.1 );
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 }
 
 

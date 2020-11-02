@@ -805,7 +805,7 @@ bool MidiActionManager::filter_cutoff_level_absolute(Action * pAction, Hydrogen*
  */
 bool MidiActionManager::bpm_cc_relative(Action * pAction, Hydrogen* pEngine, targeted_element ) {
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	//this Action should be triggered only by CC commands
 
@@ -830,7 +830,7 @@ bool MidiActionManager::bpm_cc_relative(Action * pAction, Hydrogen* pEngine, tar
 
 	m_nLastBpmChangeCCParameter = cc_param;
 
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 
 	return true;
 }
@@ -841,7 +841,7 @@ bool MidiActionManager::bpm_cc_relative(Action * pAction, Hydrogen* pEngine, tar
  */
 bool MidiActionManager::bpm_fine_cc_relative(Action * pAction, Hydrogen* pEngine, targeted_element ) {
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	//this Action should be triggered only by CC commands
 	bool ok;
@@ -865,13 +865,13 @@ bool MidiActionManager::bpm_fine_cc_relative(Action * pAction, Hydrogen* pEngine
 
 	m_nLastBpmChangeCCParameter = cc_param;
 
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 
 	return true;
 }
 
 bool MidiActionManager::bpm_increase(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	bool ok;
 	int mult = pAction->getParameter1().toInt(&ok,10);
@@ -880,7 +880,7 @@ bool MidiActionManager::bpm_increase(Action * pAction, Hydrogen* pEngine, target
 	if (pSong->__bpm  < 300) {
 		pEngine->setBPM( pSong->__bpm + 1*mult );
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 
@@ -888,7 +888,7 @@ bool MidiActionManager::bpm_increase(Action * pAction, Hydrogen* pEngine, target
 }
 
 bool MidiActionManager::bpm_decrease(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	bool ok;
 	int mult = pAction->getParameter1().toInt(&ok,10);
@@ -897,7 +897,7 @@ bool MidiActionManager::bpm_decrease(Action * pAction, Hydrogen* pEngine, target
 	if (pSong->__bpm  > 40 ) {
 		pEngine->setBPM( pSong->__bpm - 1*mult );
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 

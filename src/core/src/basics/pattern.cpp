@@ -26,7 +26,7 @@
 
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/audio_engine.h>
+#include <hydrogen/hydrogen.h>
 
 #include <hydrogen/helpers/xml.h>
 #include <hydrogen/helpers/filesystem.h>
@@ -230,7 +230,7 @@ void Pattern::purge_instrument( Instrument* instr )
 		assert( note );
 		if ( note->get_instrument() == instr ) {
 			if ( !locked ) {
-				H2Core::AudioEngine::get_instance()->lock( RIGHT_HERE );
+				Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 				locked = true;
 			}
 			slate.push_back( note );
@@ -240,7 +240,7 @@ void Pattern::purge_instrument( Instrument* instr )
 		}
 	}
 	if ( locked ) {
-		H2Core::AudioEngine::get_instance()->unlock();
+		Hydrogen::get_instance()->getAudioEngine()->unlock();
 		while ( slate.size() ) {
 			delete slate.front();
 			slate.pop_front();

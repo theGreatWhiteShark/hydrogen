@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		AudioEngine* AudioEngine = AudioEngine::get_instance();
+		auto AudioEngine = Hydrogen::get_instance()->getAudioEngine();
 		auto sampler = AudioEngine->getSampler();
 		switch ( interpolation ) {
 			case 1:
@@ -442,7 +442,6 @@ int main(int argc, char *argv[])
 		delete pQueue;
 		delete pHydrogen;
 		delete preferences;
-		delete AudioEngine;
 
 		delete MidiMap::get_instance();
 		delete MidiActionManager::get_instance();

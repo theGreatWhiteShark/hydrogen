@@ -246,7 +246,7 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 		Instrument *pInstr = pSong->get_instrument_list()->get( m_nInstrumentNumber );
 
 		Note *pNote = new Note( pInstr, 0, velocity, pan_L, pan_R, nLength, fPitch);
-		AudioEngine::get_instance()->getSampler()->note_on(pNote);
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->note_on(pNote);
 	}
 	else if (ev->button() == Qt::RightButton ) {
 		m_pFunctionPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
@@ -494,10 +494,10 @@ void InstrumentLine::functionRenameInstrument()
 		pSelectedInstrument->set_name( sNewName );
 
 #ifdef H2CORE_HAVE_JACK
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 		Hydrogen *engine = Hydrogen::get_instance();
 		engine->renameJackPorts(engine->getSong());
-		AudioEngine::get_instance()->unlock();
+		Hydrogen::get_instance()->getAudioEngine()->unlock();
 #endif
 
 		// this will force an update...

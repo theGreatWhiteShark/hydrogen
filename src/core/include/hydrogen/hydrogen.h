@@ -24,6 +24,7 @@
 
 #include <stdint.h> // for uint32_t et al
 #include "hydrogen/config.h"
+#include "hydrogen/audio_engine.h"
 #include <hydrogen/midi_action.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/sample.h>
@@ -661,6 +662,8 @@ void			previewSample( Sample *pSample );
 	 */
 	int 			m_nMaxTimeHumanize;
 
+	const std::shared_ptr<AudioEngine> getAudioEngine() const;
+
 private:
 	/**
 	 * Static reference to the Hydrogen singleton. 
@@ -670,6 +673,8 @@ private:
 	 * if still 0 in create_instance().
 	 */
 	static Hydrogen* 	__instance;
+
+	std::shared_ptr<AudioEngine> m_pAudioEngine;
 
 	/**
 	 * Pointer to the current song. It is initialized with NULL in
@@ -838,7 +843,9 @@ inline Song* Hydrogen::getNextSong() const {
 inline void Hydrogen::setNextSong( Song* pNextSong ) {
 	m_pNextSong = pNextSong;
 }
-
+inline const std::shared_ptr<AudioEngine> Hydrogen::getAudioEngine() const {
+	return m_pAudioEngine;
+}
 };
 
 #endif

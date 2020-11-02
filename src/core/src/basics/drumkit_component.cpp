@@ -24,7 +24,7 @@
 
 #include <cassert>
 
-#include <hydrogen/audio_engine.h>
+#include <hydrogen/hydrogen.h>
 
 #include <hydrogen/helpers/xml.h>
 #include <hydrogen/helpers/filesystem.h>
@@ -103,7 +103,7 @@ float DrumkitComponent::get_out_R( int nBufferPos )
 void DrumkitComponent::load_from( DrumkitComponent* component, bool is_live )
 {
 	if ( is_live ) {
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 	}
 
 	this->set_id( component->get_id() );
@@ -112,7 +112,7 @@ void DrumkitComponent::load_from( DrumkitComponent* component, bool is_live )
 	this->set_volume( component->get_volume() );
 
 	if ( is_live ) {
-		AudioEngine::get_instance()->unlock();
+		Hydrogen::get_instance()->getAudioEngine()->unlock();
 	}
 }
 

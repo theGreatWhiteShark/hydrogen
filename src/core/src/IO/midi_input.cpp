@@ -372,10 +372,10 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 		fStep = 1;
 	}
 
-	bool use_note_off = AudioEngine::get_instance()->getSampler()->is_instrument_playing( pInstr );
+	bool use_note_off = Hydrogen::get_instance()->getAudioEngine()->getSampler()->is_instrument_playing( pInstr );
 	if(use_note_off){
 		if ( Preferences::get_instance()->__playselectedinstrument ){
-			AudioEngine::get_instance()->getSampler()->midi_keyboard_note_off( msg.m_nData1 );
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->midi_keyboard_note_off( msg.m_nData1 );
 		}
 		else
 		{
@@ -391,12 +391,12 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 										-1,
 										0 );
 			pOffNote->set_note_off( true );
-			AudioEngine::get_instance()->getSampler()->note_on( pOffNote );
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->note_on( pOffNote );
 			delete pOffNote;
 		}
 		
 		if(Preferences::get_instance()->getRecordEvents()) {
-			AudioEngine::get_instance()->getSampler()->setPlayingNotelength( pInstr, notelength * fStep, __noteOnTick );
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setPlayingNotelength( pInstr, notelength * fStep, __noteOnTick );
 		}
 	}
 }

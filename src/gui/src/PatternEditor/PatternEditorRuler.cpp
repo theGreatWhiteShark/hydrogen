@@ -141,7 +141,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	 * Lock audio engine to make sure pattern list does not get
 	 * modified / cleared during iteration 
 	 */
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	PatternList *pList = pEngine->getCurrentPatternList();
 	for (uint i = 0; i < pList->size(); i++) {
@@ -151,7 +151,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 		}
 	}
 
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 
 
 	int state = pEngine->getState();

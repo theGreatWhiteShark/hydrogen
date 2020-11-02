@@ -107,7 +107,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	}
 
 	// use of interpolation mode
-	m_nOldInterpolation = AudioEngine::get_instance()->getSampler()->getInterpolateMode();
+	m_nOldInterpolation = Hydrogen::get_instance()->getAudioEngine()->getSampler()->getInterpolateMode();
 	resampleComboBox->setCurrentIndex( m_nOldInterpolation );
 	connect(resampleComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(resampleComboBoIndexChanged(int)));
 
@@ -658,19 +658,19 @@ void ExportSongDialog::setResamplerMode(int index)
 {
 	switch ( index ){
 	case 0:
-		AudioEngine::get_instance()->getSampler()->setInterpolateMode( Sampler::LINEAR );
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Sampler::LINEAR );
 		break;
 	case 1:
-		AudioEngine::get_instance()->getSampler()->setInterpolateMode( Sampler::COSINE );
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Sampler::COSINE );
 		break;
 	case 2:
-		AudioEngine::get_instance()->getSampler()->setInterpolateMode( Sampler::THIRD );
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Sampler::THIRD );
 		break;
 	case 3:
-		AudioEngine::get_instance()->getSampler()->setInterpolateMode( Sampler::CUBIC );
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Sampler::CUBIC );
 		break;
 	case 4:
-		AudioEngine::get_instance()->getSampler()->setInterpolateMode( Sampler::HERMITE );
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Sampler::HERMITE );
 		break;
 	}
 }
@@ -731,9 +731,9 @@ void ExportSongDialog::calculateRubberbandTime()
 									}
 	
 									// insert new sample from newInstrument
-									AudioEngine::get_instance()->lock( RIGHT_HERE );
+									Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 									pLayer->set_sample( pNewSample );
-									AudioEngine::get_instance()->unlock();
+									Hydrogen::get_instance()->getAudioEngine()->unlock();
 									
 								}
 							}

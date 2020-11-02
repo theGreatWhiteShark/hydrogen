@@ -348,7 +348,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
 
 	const float fPitch = 0.0f;
 	Note *pNote = new Note( pInstrList->get(nLine), 0, 1.0, 0.5f, 0.5f, -1, fPitch );
-	AudioEngine::get_instance()->getSampler()->note_on(pNote);
+	Hydrogen::get_instance()->getAudioEngine()->getSampler()->note_on(pNote);
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
 }
@@ -367,7 +367,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
 
 	const float fPitch = 0.0f;
 	Note *pNote = new Note( instrList->get( nLine ), 0, 1.0, 0.5, 0.5, -1, fPitch );
-	AudioEngine::get_instance()->getSampler()->note_off(pNote);
+	Hydrogen::get_instance()->getAudioEngine()->getSampler()->note_off(pNote);
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
 }

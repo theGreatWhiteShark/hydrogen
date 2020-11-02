@@ -837,7 +837,7 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 	double fVal = (double) pRef->getValue();
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	if ( pRef == m_pHumanizeTimeRotary ) {
 		pEngine->getSong()->set_humanize_time_value( fVal );
@@ -855,7 +855,7 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 		ERRORLOG( "[knobChanged] Unhandled knob" );
 	}
 
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 
 	( HydrogenApp::get_instance() )->setStatusBarMessage( sMsg, 2000 );
 }

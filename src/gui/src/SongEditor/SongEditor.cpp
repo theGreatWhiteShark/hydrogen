@@ -268,14 +268,14 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	if ( ev->matches( QKeySequence::Delete ) ) {
 		// Key: Delete: delete selected pattern cells, or cell at current position
 		if ( m_selectedCells.size() != 0 ) {
-			AudioEngine::get_instance()->lock( RIGHT_HERE );
+			Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 			// delete all selected cells
 			for ( uint i = 0; i < m_selectedCells.size(); i++ ) {
 				QPoint cell = m_selectedCells[ i ];
 				PatternList* pColumn = (*pColumns)[ cell.x() ];
 				pColumn->del(pPatternList->get( cell.y() ) );
 			}
-			AudioEngine::get_instance()->unlock();
+			Hydrogen::get_instance()->getAudioEngine()->unlock();
 
 			m_selectedCells.clear();
 			m_bSequenceChanged = true;
@@ -496,7 +496,7 @@ void SongEditor::startSelectionOrMove( int nColumn, int nRow, QPoint pos, bool b
 		return;
 	}
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 	bool bOverExistingPattern = false;
 
 	for ( uint i = 0; i < m_selectedCells.size(); i++ ) {
@@ -532,7 +532,7 @@ void SongEditor::startSelectionOrMove( int nColumn, int nRow, QPoint pos, bool b
 			m_selectedCells.push_back( QPoint( nColumn, nRow ) );
 		}
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	// update
 	m_bSequenceChanged = true;
 	update();
@@ -582,7 +582,7 @@ void SongEditor::addPattern( int nColumn , int nRow )
 	H2Core::Pattern *pPattern = pPatternList->get( nRow );
 	vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 	if ( nColumn < (int)pColumns->size() ) {
 		PatternList *pColumn = ( *pColumns )[ nColumn ];
 		// ADD PATTERN
@@ -604,7 +604,7 @@ void SongEditor::addPattern( int nColumn , int nRow )
 		pColumn->add( pPattern );
 	}
 	pSong->set_is_modified( true );
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	m_bSequenceChanged = true;
 	update();
 }
@@ -618,7 +618,7 @@ void SongEditor::deletePattern( int nColumn , int nRow )
 	H2Core::Pattern *pPattern = pPatternList->get( nRow );
 	vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	PatternList *pColumn = ( *pColumns )[ nColumn ];
 
@@ -636,7 +636,7 @@ void SongEditor::deletePattern( int nColumn , int nRow )
 		}
 	}
 	pSong->set_is_modified( true );
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	m_bSequenceChanged = true;
 	update();
 }
@@ -874,7 +874,7 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 	vector<PatternList*>* pColumns = pEngine->getSong()->get_pattern_group_vector();
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	//create the new patterns
 	for ( uint i = 0; i < movingCells.size(); i++ ) {
@@ -1001,7 +1001,7 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 	}
 
 	pEngine->getSong()->set_is_modified( true );
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 
 	m_bIsMoving = false;
 	m_movingCells.clear();
@@ -1316,7 +1316,7 @@ void SongEditor::clearThePatternSequenceVector( QString filename )
 {
 	Hydrogen *engine = Hydrogen::get_instance();
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	Song *song = engine->getSong();
 
@@ -1332,7 +1332,7 @@ void SongEditor::clearThePatternSequenceVector( QString filename )
 	pPatternGroupsVect->clear();
 
 	song->set_is_modified( true );
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	m_bSequenceChanged = true;
 	update();
 }
@@ -1607,7 +1607,7 @@ void SongEditorPatternList::createBackground()
 
 	std::unique_ptr<PatternDisplayInfo[]> PatternArray{new PatternDisplayInfo[nPatterns]};
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 	PatternList *pCurrentPatternList = pEngine->getCurrentPatternList();
 	
 	//assemble the data..
@@ -1628,7 +1628,7 @@ void SongEditorPatternList::createBackground()
 
 		PatternArray[i].sPatternName = pPattern->get_name();
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	
 	/// paint the foreground (pattern name etc.)
 	for ( int i = 0; i < nPatterns; i++ ) {
@@ -1920,7 +1920,7 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	}
 
 	//Lock because PatternList will be modified
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	PatternList *list = pEngine->getCurrentPatternList();
 	list->del( pattern );
@@ -1936,7 +1936,7 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 		pSongPatternList->add( pEmptyPattern );
 	}
 
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	
 	pEngine->setSelectedPatternNumber( -1 );
 	pEngine->setSelectedPatternNumber( 0 );
@@ -2050,7 +2050,7 @@ void SongEditorPatternList::patternPopup_fill()
 void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPattern )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
@@ -2110,7 +2110,7 @@ void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPatter
 				break;
 			}
 		}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 
 
 	// Update
