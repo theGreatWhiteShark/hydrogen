@@ -199,11 +199,11 @@ void AudioEngineInfoForm::updateInfo()
 	}
 
 	// SAMPLER
-	Sampler *pSampler = AudioEngine::get_instance()->getSampler();
+	auto pSampler = AudioEngine::get_instance()->getSampler();
 	sampler_playingNotesLbl->setText(QString( "%1 / %2" ).arg(pSampler->get_playing_notes_number()).arg(Preferences::get_instance()->m_nMaxNotes));
 
 	// Synth
-	Synth *pSynth = AudioEngine::get_instance()->getSynth();
+	auto pSynth = AudioEngine::get_instance()->getSynth();
 	synth_playingNotesLbl->setText( QString( "%1" ).arg( pSynth->getPlayingNotesNumber() ) );
 }
 

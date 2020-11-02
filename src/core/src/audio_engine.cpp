@@ -53,8 +53,8 @@ AudioEngine::AudioEngine()
 	__instance = this;
 	INFOLOG( "INIT" );
 
-	m_pSampler = new Sampler;
-	m_pSynth = new Synth;
+	m_pSampler = std::make_shared<Sampler>();
+	m_pSynth = std::make_shared<Synth>();
 
 #ifdef H2CORE_HAVE_LADSPA
 	Effects::create_instance();
@@ -70,26 +70,18 @@ AudioEngine::~AudioEngine()
 #ifdef H2CORE_HAVE_LADSPA
 	delete Effects::get_instance();
 #endif
-
-//	delete Sequencer::get_instance();
-	delete m_pSampler;
-	delete m_pSynth;
 }
 
 
-
-Sampler* AudioEngine::getSampler()
+std::shared_ptr<Sampler> AudioEngine::getSampler()
 {
-	assert(m_pSampler);
+	assert( m_pSampler != nullptr );
 	return m_pSampler;
 }
 
-
-
-
-Synth* AudioEngine::getSynth()
+std::shared_ptr<Synth> AudioEngine::getSynth()
 {
-	assert(m_pSynth);
+	assert( m_pSynth != nullptr );
 	return m_pSynth;
 }
 

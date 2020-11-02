@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
 		}
 
 		AudioEngine* AudioEngine = AudioEngine::get_instance();
-		Sampler* sampler = AudioEngine->getSampler();
+		auto sampler = AudioEngine->getSampler();
 		switch ( interpolation ) {
 			case 1:
 					sampler->setInterpolateMode( Sampler::COSINE );

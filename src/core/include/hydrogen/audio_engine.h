@@ -32,6 +32,7 @@
 #include <cassert>
 #include <mutex>
 #include <chrono>
+#include <memory>
 
 /** \def RIGHT_HERE
  * Macro intended to be used for the logging of the locking of the
@@ -155,9 +156,9 @@ public:
 	 static float computeTickSize(int nSampleRate, float fBpm, int nResolution);
 
 	/** Returns #m_pSampler */
-	Sampler* getSampler();
+	std::shared_ptr<Sampler> getSampler();
 	/** Returns #m_pSynth */
-	Synth* getSynth();
+	std::shared_ptr<Synth> getSynth();
 
 private:
 	/**
@@ -168,9 +169,9 @@ private:
 	static AudioEngine* __instance;
 
 	/** Local instance of the Sampler. */
-	Sampler* m_pSampler;
+	std::shared_ptr<Sampler> m_pSampler;
 	/** Local instance of the Synth. */
-	Synth* m_pSynth;
+	std::shared_ptr<Synth> m_pSynth;
 
 	/** Mutex for synchronizing the access to the Song object and
 	    the AudioEngine. 

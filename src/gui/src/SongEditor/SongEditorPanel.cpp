@@ -447,7 +447,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 
 void SongEditorPanel::updatePlaybackFaderPeaks()
 {
-	Sampler*		pSampler = AudioEngine::get_instance()->getSampler();
+	auto		pSampler = AudioEngine::get_instance()->getSampler();
 	Preferences *	pPref = Preferences::get_instance();
 	Instrument*		pInstrument = pSampler->__playback_instrument;
 
