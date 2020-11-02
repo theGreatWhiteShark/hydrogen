@@ -1014,7 +1014,7 @@ bool Sampler::__render_note_resample(
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		float resampledTickSize = AudioEngine::compute_tick_size( pSample->get_sample_rate(),
+		float resampledTickSize = AudioEngine::computeTickSize( pSample->get_sample_rate(),
 		                                                          pAudioOutput->m_transport.m_fBPM,
 		                                                          pSong->__resolution );
 		

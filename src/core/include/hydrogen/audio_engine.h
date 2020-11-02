@@ -52,9 +52,9 @@ namespace H2Core
  * Audio Engine main class (Singleton).
  *
  * It serves as a container for the Sampler and Synth stored in the
- * #__sampler and #__synth member objects and provides a mutex
- * #__engine_mutex enabling the user to synchronize the access of the
- * Song object and the AudioEngine itself. lock() and try_lock() can
+ * #m_pSampler and #m_pSynth member objects and provides a mutex
+ * #m_engineMutex enabling the user to synchronize the access of the
+ * Song object and the AudioEngine itself. lock() and tryLock() can
  * be called by a thread to lock the engine and unlock() to make it
  * accessible for other threads once again.
  */ 
@@ -74,12 +74,6 @@ public:
 	 * stored in #__instance.
 	 */
 	static AudioEngine* get_instance() { assert(__instance); return __instance; }
-	/** 
-	 * Destructor of the AudioEngine.
-	 *
-	 * Deletes the Effects singleton and the #__sampler and
-	 * #__synth objects.
-	 */
 	~AudioEngine();
 
 	/** Mutex locking of the AudioEngine.
@@ -89,7 +83,7 @@ public:
 	 * The documentation below may serve as a guide for future
 	 * implementations. At the moment the logging of the locking
 	 * is __not supported yet__ and the arguments will be just
-	 * stored in the #__locker variable, which itself won't be
+	 * stored in the #m_locker variable, which itself won't be
 	 * ever used.
 	 *
 	 * Easy usage:  Use the #RIGHT_HERE macro like this...
@@ -131,7 +125,7 @@ public:
 	 * - true : On success
 	 * - false : Else
 	 */
-	bool try_lock( const char* file, unsigned int line, const char* function );
+	bool tryLock( const char* file, unsigned int line, const char* function );
 
 	/**
 	 * Mutex locking of the AudioEngine.
@@ -149,21 +143,21 @@ public:
 	 * - true : On successful acquisition of the lock
 	 * - false : On failure
 	 */
-	bool try_lock_for( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function );
+	bool tryLockFor( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function );
 	/**
 	 * Mutex unlocking of the AudioEngine.
 	 *
-	 * Unlocks the AudioEngine to allow other threads acces, and leaves #__locker untouched.
+	 * Unlocks the AudioEngine to allow other threads acces, and leaves #m_locker untouched.
 	 */
 	void unlock();
 	
 	
-	 static float compute_tick_size(int sampleRate, float bpm, int resolution);
+	 static float computeTickSize(int nSampleRate, float fBpm, int nResolution);
 
-	/** Returns #__sampler */
-	Sampler* get_sampler();
-	/** Returns #__synth */
-	Synth* get_synth();
+	/** Returns #m_pSampler */
+	Sampler* getSampler();
+	/** Returns #m_pSynth */
+	Synth* getSynth();
 
 private:
 	/**
@@ -174,18 +168,18 @@ private:
 	static AudioEngine* __instance;
 
 	/** Local instance of the Sampler. */
-	Sampler* __sampler;
+	Sampler* m_pSampler;
 	/** Local instance of the Synth. */
-	Synth* __synth;
+	Synth* m_pSynth;
 
 	/** Mutex for synchronizing the access to the Song object and
 	    the AudioEngine. 
 	  * 
 	  * It can be used lock the access using either lock() or
-	  * try_lock() and to unlock it via unlock(). It is
+	  * tryLock() and to unlock it via unlock(). It is
 	  * initialized in AudioEngine() and not explicitly exited.
 	  */
-	std::timed_mutex __engine_mutex;
+	std::timed_mutex m_engineMutex;
 
 	/**
 	 * This struct is most probably intended to be used for
@@ -196,7 +190,7 @@ private:
 		const char* file;
 		unsigned int line;
 		const char* function;
-	} __locker; ///< This struct is most probably intended to be
+	} m_locker; ///< This struct is most probably intended to be
 		    ///< used for logging the locking of the
 		    ///< AudioEngine. But neither it nor the
 		    ///< Logger::AELockTracing state is ever used.
@@ -205,11 +199,11 @@ private:
 	 * Constructor of the AudioEngine.
 	 *
 	 * - Assigns #__instance to itself.
-	 * - Initializes the Mutex of the AudioEngine #__engine_mutex
+	 * - Initializes the Mutex of the AudioEngine #m_engineMutex
 	 *   by calling _pthread_mutex_init()_ (pthread.h) on its
 	 *   address.
-	 * - Assigns a new instance of the Sampler to #__sampler and of
-	 *   the Synth to #__synth.
+	 * - Assigns a new instance of the Sampler to #m_pSampler and of
+	 *   the Synth to #m_pSynth.
 	 * - Creates an instance of the Effects singleton. This call
 	 *   should not be necessary since this singleton was created
 	 *   right before creating the AudioEngine. But its costs are

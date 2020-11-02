@@ -125,7 +125,7 @@ AudioOutput *			m_pAudioDriver = nullptr;
  *
  * When locking this __and__ the AudioEngine, always lock the
  * AudioEngine first using AudioEngine::lock() or
- * AudioEngine::try_lock(). Always use a QMutexLocker to lock this
+ * AudioEngine::tryLock(). Always use a QMutexLocker to lock this
  * mutex.
  */
 QMutex				mutex_OutputPointer;
@@ -780,7 +780,7 @@ void audioEngine_destroy()
 		___ERRORLOG( "Error the audio engine is not in INITIALIZED state" );
 		return;
 	}
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+	AudioEngine::get_instance()->getSampler()->stop_playing_notes();
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	___INFOLOG( "*** Hydrogen audio engine shutdown ***" );
@@ -915,7 +915,7 @@ inline void audioEngine_process_checkBPMChanged(Song* pSong)
 	oldFrame = m_pAudioDriver->m_transport.m_nFrames;
 #endif
 	float fOldTickSize = m_pAudioDriver->m_transport.m_fTickSize;
-	float fNewTickSize = AudioEngine::compute_tick_size( m_pAudioDriver->getSampleRate(), pSong->__bpm, pSong->__resolution );
+	float fNewTickSize = AudioEngine::computeTickSize( m_pAudioDriver->getSampleRate(), pSong->__bpm, pSong->__resolution );
 
 	// Nothing changed - avoid recomputing
 	if ( fNewTickSize == fOldTickSize ) {
@@ -1035,11 +1035,11 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 										   -1,
 										   0 );
 				pOffNote->set_note_off( true );
-				AudioEngine::get_instance()->get_sampler()->note_on( pOffNote );
+				AudioEngine::get_instance()->getSampler()->note_on( pOffNote );
 				delete pOffNote;
 			}
 
-			AudioEngine::get_instance()->get_sampler()->note_on( pNote );
+			AudioEngine::get_instance()->getSampler()->note_on( pNote );
 			m_songNoteQueue.pop(); // rimuovo la nota dalla lista di note
 			pNote->get_instrument()->dequeue();
 			// raise noteOn event
@@ -1171,7 +1171,7 @@ void audioEngine_clearNoteQueue()
 		m_songNoteQueue.pop();
 	}
 
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+	AudioEngine::get_instance()->getSampler()->stop_playing_notes();
 
 	// delete all copied notes in the midi notes queue
 	for ( unsigned i = 0; i < m_midiNoteQueue.size(); ++i ) {
@@ -1289,15 +1289,15 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	}
 
 	/*
-	 * The "try_lock" was introduced for Bug #164 (Deadlock after during
-	 * alsa driver shutdown). The try_lock *should* only fail in rare circumstances
+	 * The "tryLock" was introduced for Bug #164 (Deadlock after during
+	 * alsa driver shutdown). The tryLock *should* only fail in rare circumstances
 	 * (like shutting down drivers). In such cases, it seems to be ok to interrupt
 	 * audio processing. Returning the special return value "2" enables the disk 
 	 * writer driver to repeat the processing of the current data.
 	 */
 				
-	if ( !AudioEngine::get_instance()->try_lock_for( std::chrono::microseconds( (int)(1000.0*fSlackTime) ),
-													 RIGHT_HERE ) ) {
+	if ( !AudioEngine::get_instance()->tryLockFor( std::chrono::microseconds( (int)(1000.0*fSlackTime) ),
+												   RIGHT_HERE ) ) {
 		___ERRORLOG( QString( "Failed to lock audioEngine in allowed %1 ms, missed buffer" ).arg( fSlackTime ) );
 
 		if ( m_pAudioDriver->class_name() == DiskWriterDriver::class_name() ) {
@@ -1368,18 +1368,18 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	audioEngine_process_playNotes( nframes );
 
 	// SAMPLER
-	AudioEngine::get_instance()->get_sampler()->process( nframes, pSong );
-	float* out_L = AudioEngine::get_instance()->get_sampler()->__main_out_L;
-	float* out_R = AudioEngine::get_instance()->get_sampler()->__main_out_R;
+	AudioEngine::get_instance()->getSampler()->process( nframes, pSong );
+	float* out_L = AudioEngine::get_instance()->getSampler()->__main_out_L;
+	float* out_R = AudioEngine::get_instance()->getSampler()->__main_out_R;
 	for ( unsigned i = 0; i < nframes; ++i ) {
 		m_pMainBuffer_L[ i ] += out_L[ i ];
 		m_pMainBuffer_R[ i ] += out_R[ i ];
 	}
 
 	// SYNTH
-	AudioEngine::get_instance()->get_synth()->process( nframes );
-	out_L = AudioEngine::get_instance()->get_synth()->m_pOut_L;
-	out_R = AudioEngine::get_instance()->get_synth()->m_pOut_R;
+	AudioEngine::get_instance()->getSynth()->process( nframes );
+	out_L = AudioEngine::get_instance()->getSynth()->m_pOut_L;
+	out_R = AudioEngine::get_instance()->getSynth()->m_pOut_R;
 	for ( unsigned i = 0; i < nframes; ++i ) {
 		m_pMainBuffer_L[ i ] += out_L[ i ];
 		m_pMainBuffer_R[ i ] += out_R[ i ];
@@ -2501,7 +2501,7 @@ void Hydrogen::loadPlaybackTrack( const QString filename )
 	Song* pSong = getSong();
 	pSong->set_playback_track_filename(filename);
 
-	AudioEngine::get_instance()->get_sampler()->reinitialize_playback_track();
+	AudioEngine::get_instance()->getSampler()->reinitialize_playback_track();
 }
 
 void Hydrogen::setSong( Song *pSong )
@@ -2548,7 +2548,7 @@ void Hydrogen::setSong( Song *pSong )
 	audioEngine_setSong( pSong );
 
 	// load new playback track information
-	AudioEngine::get_instance()->get_sampler()->reinitialize_playback_track();
+	AudioEngine::get_instance()->getSampler()->reinitialize_playback_track();
 	
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
@@ -3084,7 +3084,7 @@ void Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 	
 	unsigned nSamplerate = (unsigned) sampleRate;
 	
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+	AudioEngine::get_instance()->getSampler()->stop_playing_notes();
 
 	Song* pSong = getSong();
 	
@@ -3168,7 +3168,7 @@ void Hydrogen::stopExportSong()
 		return;
 	}
 
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+	AudioEngine::get_instance()->getSampler()->stop_playing_notes();
 	
 	m_pAudioDriver->disconnect();
 
@@ -3996,7 +3996,7 @@ void Hydrogen::__kill_instruments()
 void Hydrogen::__panic()
 {
 	sequencer_stop();
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+	AudioEngine::get_instance()->getSampler()->stop_playing_notes();
 }
 
 unsigned int Hydrogen::__getMidiRealtimeNoteTickPosition()

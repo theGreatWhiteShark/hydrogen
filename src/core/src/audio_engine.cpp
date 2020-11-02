@@ -47,14 +47,14 @@ void AudioEngine::create_instance()
 
 AudioEngine::AudioEngine()
 		: Object( __class_name )
-		, __sampler( nullptr )
-		, __synth( nullptr )
+		, m_pSampler( nullptr )
+		, m_pSynth( nullptr )
 {
 	__instance = this;
 	INFOLOG( "INIT" );
 
-	__sampler = new Sampler;
-	__synth = new Synth;
+	m_pSampler = new Sampler;
+	m_pSynth = new Synth;
 
 #ifdef H2CORE_HAVE_LADSPA
 	Effects::create_instance();
@@ -72,78 +72,78 @@ AudioEngine::~AudioEngine()
 #endif
 
 //	delete Sequencer::get_instance();
-	delete __sampler;
-	delete __synth;
+	delete m_pSampler;
+	delete m_pSynth;
 }
 
 
 
-Sampler* AudioEngine::get_sampler()
+Sampler* AudioEngine::getSampler()
 {
-	assert(__sampler);
-	return __sampler;
+	assert(m_pSampler);
+	return m_pSampler;
 }
 
 
 
 
-Synth* AudioEngine::get_synth()
+Synth* AudioEngine::getSynth()
 {
-	assert(__synth);
-	return __synth;
+	assert(m_pSynth);
+	return m_pSynth;
 }
 
 void AudioEngine::lock( const char* file, unsigned int line, const char* function )
 {
-	__engine_mutex.lock();
-	__locker.file = file;
-	__locker.line = line;
-	__locker.function = function;
+	m_engineMutex.lock();
+	m_locker.file = file;
+	m_locker.line = line;
+	m_locker.function = function;
 }
 
 
 
-bool AudioEngine::try_lock( const char* file, unsigned int line, const char* function )
+bool AudioEngine::tryLock( const char* file, unsigned int line, const char* function )
 {
-	bool res = __engine_mutex.try_lock();
+	bool res = m_engineMutex.try_lock();
 	if ( !res ) {
 		// Lock not obtained
 		return false;
 	}
-	__locker.file = file;
-	__locker.line = line;
-	__locker.function = function;
+	m_locker.file = file;
+	m_locker.line = line;
+	m_locker.function = function;
 	return true;
 }
 
-bool AudioEngine::try_lock_for( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function )
+bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function )
 {
-	bool res = __engine_mutex.try_lock_for( duration );
+	bool res = m_engineMutex.try_lock_for( duration );
 	if ( !res ) {
 		// Lock not obtained
 		WARNINGLOG( QString( "Lock timeout: lock timeout %1:%2%3, lock held by %4:%5:%6" )
 					.arg( file ).arg( function ).arg( line )
-					.arg( __locker.file ).arg( __locker.function ).arg( __locker.line ));
+					.arg( m_locker.file ).arg( m_locker.function ).arg( m_locker.line ));
 		return false;
 	}
-	__locker.file = file;
-	__locker.line = line;
-	__locker.function = function;
+	m_locker.file = file;
+	m_locker.line = line;
+	m_locker.function = function;
 	return true;
 }
 
-float AudioEngine::compute_tick_size(int sampleRate, float bpm, int resolution)
+float AudioEngine::computeTickSize(int nSampleRate, float fBpm, int nResolution)
 {
-	float tickSize = sampleRate * 60.0 / bpm / resolution;
+	float fTickSize = nSampleRate * 60.0 / fBpm / nResolution;
 	
-	return tickSize;
+	return fTickSize;
 }
 
 
 void AudioEngine::unlock()
 {
-	// Leave "__locker" dirty.
-	__engine_mutex.unlock();
+	// Leave "m_locker" dirty.
+	m_engineMutex.unlock();
 }
 
 

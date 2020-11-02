@@ -199,11 +199,11 @@ void AudioEngineInfoForm::updateInfo()
 	}
 
 	// SAMPLER
-	Sampler *pSampler = AudioEngine::get_instance()->get_sampler();
+	Sampler *pSampler = AudioEngine::get_instance()->getSampler();
 	sampler_playingNotesLbl->setText(QString( "%1 / %2" ).arg(pSampler->get_playing_notes_number()).arg(Preferences::get_instance()->m_nMaxNotes));
 
 	// Synth
-	Synth *pSynth = AudioEngine::get_instance()->get_synth();
+	Synth *pSynth = AudioEngine::get_instance()->getSynth();
 	synth_playingNotesLbl->setText( QString( "%1" ).arg( pSynth->getPlayingNotesNumber() ) );
 }
 
@@ -213,7 +213,7 @@ void AudioEngineInfoForm::updateInfo()
 
 
 /**
- * Update engineStateLbl with the current audio engine state
+ * Update engineStateLbl with the current audio engine state 
  */
 void AudioEngineInfoForm::updateAudioEngineState() {
 	// Audio Engine state

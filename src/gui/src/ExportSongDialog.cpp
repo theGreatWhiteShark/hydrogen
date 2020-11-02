@@ -107,7 +107,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	}
 
 	// use of interpolation mode
-	m_nOldInterpolation = AudioEngine::get_instance()->get_sampler()->getInterpolateMode();
+	m_nOldInterpolation = AudioEngine::get_instance()->getSampler()->getInterpolateMode();
 	resampleComboBox->setCurrentIndex( m_nOldInterpolation );
 	connect(resampleComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(resampleComboBoIndexChanged(int)));
 
@@ -658,19 +658,19 @@ void ExportSongDialog::setResamplerMode(int index)
 {
 	switch ( index ){
 	case 0:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::LINEAR );
+		AudioEngine::get_instance()->getSampler()->setInterpolateMode( Sampler::LINEAR );
 		break;
 	case 1:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::COSINE );
+		AudioEngine::get_instance()->getSampler()->setInterpolateMode( Sampler::COSINE );
 		break;
 	case 2:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::THIRD );
+		AudioEngine::get_instance()->getSampler()->setInterpolateMode( Sampler::THIRD );
 		break;
 	case 3:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::CUBIC );
+		AudioEngine::get_instance()->getSampler()->setInterpolateMode( Sampler::CUBIC );
 		break;
 	case 4:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::HERMITE );
+		AudioEngine::get_instance()->getSampler()->setInterpolateMode( Sampler::HERMITE );
 		break;
 	}
 }

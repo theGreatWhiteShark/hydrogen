@@ -524,7 +524,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 
 	Note *pNote = new Note( pInstr, 0, pInstr->get_component( m_nSelectedComponent )->get_layer( selectedLayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
 	pNote->set_specific_compo_id( m_nSelectedComponent );
-	AudioEngine::get_instance()->get_sampler()->note_on(pNote);
+	AudioEngine::get_instance()->getSampler()->note_on(pNote);
 
 	setSamplelengthFrames();
 	createPositionsRulerPath();
@@ -571,8 +571,8 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 
 	if ( pNewSample ){
 		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
-		AudioEngine::get_instance()->get_sampler()->preview_instrument( pTmpInstrument );
-		AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );
+		AudioEngine::get_instance()->getSampler()->preview_instrument( pTmpInstrument );
+		AudioEngine::get_instance()->getSampler()->preview_sample( pNewSample, length );
 		m_nSlframes = pNewSample->get_frames();
 	}
 
@@ -744,7 +744,7 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 {
 	testpTimer();
 	if ( m_nSlframes > Hydrogen::get_instance()->getAudioOutput()->getSampleRate() * 60 ){
-		AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+		AudioEngine::get_instance()->getSampler()->stop_playing_notes();
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
 		m_pTimer->stop();
 		m_bPlayButton = false;
@@ -911,7 +911,7 @@ void SampleEditor::testpTimer()
 		m_pTargetDisplayTimer->stop();
 		PlayPushButton->setText( QString( "&Play" ) );
 		PlayOrigPushButton->setText( QString( "P&lay original sample") );
-		AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+		AudioEngine::get_instance()->getSampler()->stop_playing_notes();
 		m_bPlayButton = false;
 	}
 }
