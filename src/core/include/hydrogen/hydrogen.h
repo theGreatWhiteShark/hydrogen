@@ -786,6 +786,360 @@ private:
 
 	void __kill_instruments();
 
+	// PROTOTYPES
+	/**
+	 * Initialization of the H2Core::AudioEngine called in Hydrogen::Hydrogen().
+	 *
+	 * -# It creates two new instances of the H2Core::PatternList and stores them
+	 in #H2Core::m_pPlayingPatterns and #H2Core::m_pNextPatterns.
+	 * -# It sets #H2Core::m_nSongPos = -1.
+	 * -# It sets #H2Core::m_nSelectedPatternNumber, #H2Core::m_nSelectedInstrumentNumber,
+	 and #H2Core::m_nPatternTickPosition to 0.
+	 * -# It sets #H2Core::m_pMetronomeInstrument, #H2Core::m_pAudioDriver,
+	 #H2Core::m_pMainBuffer_L, #H2Core::m_pMainBuffer_R to NULL.
+	 * -# It uses the current time to a random seed via std::srand(). This
+	 way the states of the pseudo-random number generator are not
+	 cross-correlated between different runs of Hydrogen.
+	 * -# It initializes the metronome with the sound stored in
+	 H2Core::Filesystem::click_file_path() by creating a new
+	 Instrument with #METRONOME_INSTR_ID as first argument.
+	 * -# It sets the H2Core::AudioEngine state #H2Core::m_audioEngineState to
+	 #STATE_INITIALIZED.
+	 * -# It calls H2Core::Effects::create_instance() (if the
+	 #H2CORE_HAVE_LADSPA is set),
+	 H2Core::AudioEngine::create_instance(), and
+	 H2Core::Playlist::create_instance().
+	 * -# Finally, it pushes the H2Core::EVENT_STATE, #STATE_INITIALIZED
+	 on the H2Core::EventQueue using
+	 H2Core::EventQueue::push_event().
+	 *
+	 * If the current state of the H2Core::AudioEngine #H2Core::m_audioEngineState is not
+	 * ::STATE_UNINITIALIZED, it will thrown an error and
+	 * H2Core::AudioEngine::unlock() it.
+	 */
+	void				audioEngine_init();
+	void				audioEngine_destroy();
+	/**
+	 * If the audio engine is in state #H2Core::m_audioEngineState #STATE_READY,
+	 * this function will
+	 * - sets #H2Core::m_fMasterPeak_L and #H2Core::m_fMasterPeak_R to 0.0f
+	 * - sets TransportInfo::m_nFrames to @a nTotalFrames
+	 * - sets H2Core::m_nSongPos and H2Core::m_nPatternStartTick to -1
+	 * - H2Core::m_nPatternTickPosition to 0
+	 * - calls H2Core::updateTickSize()
+	 * - sets #H2Core::m_audioEngineState to #STATE_PLAYING
+	 * - pushes the #EVENT_STATE #STATE_PLAYING using EventQueue::push_event()
+	 *
+	 * \param bLockEngine Whether or not to lock the audio engine before
+	 *   performing any actions. The audio engine __must__ be locked! This
+	 *   option should only be used, if the process calling this function
+	 *   did already locked it.
+	 * \param nTotalFrames New value of the transport position.
+	 * \return 0 regardless what happens inside the function.
+	 */
+	int				audioEngine_start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
+	/**
+	 * If the audio engine is in state #H2Core::m_audioEngineState #STATE_PLAYING,
+	 * this function will
+	 * - sets #H2Core::m_fMasterPeak_L and #H2Core::m_fMasterPeak_R to 0.0f
+	 * - sets #H2Core::m_audioEngineState to #STATE_READY
+	 * - sets #H2Core::m_nPatternStartTick to -1
+	 * - deletes all copied Note in song notes queue #H2Core::m_songNoteQueue and
+	 *   MIDI notes queue #H2Core::m_midiNoteQueue
+	 * - calls the _clear()_ member of #H2Core::m_midiNoteQueue
+	 *
+	 * \param bLockEngine Whether or not to lock the audio engine before
+	 *   performing any actions. The audio engine __must__ be locked! This
+	 *   option should only be used, if the process calling this function
+	 *   did already locked it.
+	 */
+	void				audioEngine_stop( bool bLockEngine = false );
+	/**
+	 * Updates the global objects of the audioEngine according to new #Song.
+	 *
+	 * Calls H2Core::audioEngine_setupLadspaFX() on
+	 * H2Core::m_pAudioDriver->getBufferSize(),
+	 * H2Core::audioEngine_process_checkBPMChanged(),
+	 * H2Core::audioEngine_renameJackPorts(), adds its first pattern to
+	 * #H2Core::m_pPlayingPatterns, relocates the audio driver to the beginning of
+	 * the #Song, and updates the BPM.
+	 *
+	 * \param pNewSong #Song to load.
+	 */
+	void				audioEngine_setSong(Song *pNewSong );
+	/**
+	 * Does the necessary cleanup of the global objects in the audioEngine.
+	 *
+	 * Class the clear() member of #H2Core::m_pPlayingPatterns and
+	 * #H2Core::m_pNextPatterns as well as H2Core::audioEngine_clearNoteQueue();
+	 */
+	void				audioEngine_removeSong();
+	static void			audioEngine_noteOn( Note *note );
+
+	/**
+	 * Main audio processing function called by the audio drivers whenever
+	 * there is work to do.
+	 *
+	 * In short, it resets the audio buffers, checks the current transport
+	 * position and configuration, updates the queue of notes, which are
+	 * about to be played, plays those notes and writes their output to
+	 * the audio buffers, and, finally, increment the transport position
+	 * in order to move forward in time.
+	 *
+	 * In detail the function
+	 * - calls H2Core::audioEngine_process_clearAudioBuffers() to reset all audio
+	 * buffers with zeros.
+	 * - calls H2Core::audioEngine_process_transport() to verify the current
+	 * TransportInfo stored in AudioOutput::m_transport. If e.g. the
+	 * JACK server is used, an external JACK client might have changed the
+	 * speed of the transport (as JACK timebase master) or the transport
+	 * position. In such cases, Hydrogen has to sync its internal transport
+	 * state AudioOutput::m_transport to reflect these changes. Else our
+	 * playback would be off.
+	 * - calls H2Core::audioEngine_process_checkBPMChanged() to check whether the
+	 * tick size, the number of frames per bar (size of a pattern), has
+	 * changed (see TransportInfo::m_nFrames in case you are unfamiliar
+	 * with the term _frames_). This is necessary because the transport
+	 * position is often given in ticks within Hydrogen and changing the
+	 * speed of the Song, e.g. via Hydrogen::setBPM(), would thus result
+	 * in a(n unintended) relocation of the transport location.
+	 * - calls H2Core::audioEngine_updateNoteQueue() and
+	 * H2Core::audioEngine_process_playNotes(), two functions which handle the
+	 * selection and playback of notes and will documented at a later
+	 * point in time
+	 * - If H2Core::audioEngine_updateNoteQueue() returns with 2, the
+	 * EVENT_PATTERN_CHANGED event will be pushed to the EventQueue.
+	 * - writes the audio output of the Sampler, Synth, and the LadspaFX
+	 * (if #H2CORE_HAVE_LADSPA is defined) to #H2Core::m_pMainBuffer_L and
+	 * #H2Core::m_pMainBuffer_R and sets we peak values for #H2Core::m_fFXPeak_L,
+	 * #H2Core::m_fFXPeak_R, #H2Core::m_fMasterPeak_L, and #H2Core::m_fMasterPeak_R.
+	 * - finally increments the transport position
+	 * TransportInfo::m_nFrames with the buffersize @a nframes. So, if
+	 * this function is called during the next cycle, the transport is
+	 * already in the correct position.
+	 *
+	 * If the H2Core::H2Core::m_audioEngineState is neither in #STATE_READY nor
+	 * #STATE_PLAYING or the locking of the AudioEngine failed, the
+	 * function will return 0 without performing any actions.
+	 *
+	 * \param nframes Buffersize. If it doesn't match #H2Core::m_nBufferSize, the
+	 latter will be set to @a nframes.
+	 * \param arg Unused.
+	 * \return
+	 * - __2__ : Failed to aquire the audio engine lock, no processing took place.
+	 * - __1__ : kill the audio driver thread. This will be used if either
+	 * the DiskWriterDriver or FakeDriver are used and the end of the Song
+	 * is reached (H2Core::audioEngine_updateNoteQueue() returned -1 ). 
+	 * - __0__ : else
+	 */
+	int				audioEngine_process( uint32_t nframes, void *arg );
+	static int aE_process( uint32_t nframes, void *arg );
+	inline void			audioEngine_clearNoteQueue();
+	/**
+	 * Update the tick size based on the current tempo without affecting
+	 * the current transport position.
+	 *
+	 * To access a change in the tick size, the value stored in
+	 * TransportInfo::m_fTickSize will be compared to the one calculated
+	 * from the AudioOutput::getSampleRate(), Song::__bpm, and
+	 * Song::__resolution. Thus, if any of those quantities did change,
+	 * the transport position will be recalculated.
+	 *
+	 * The new transport position gets calculated by 
+	 * \code{.cpp}
+	 * ceil( H2Core::m_pAudioDriver->m_transport.m_nFrames/
+	 *       H2Core::m_pAudioDriver->m_transport.m_fTickSize ) *
+	 * H2Core::m_pAudioDriver->getSampleRate() * 60.0 / Song::__bpm / Song::__resolution 
+	 * \endcode
+	 *
+	 * If the JackAudioDriver is used and the audio engine is playing, a
+	 * potential mismatch in the transport position is determined by
+	 * JackAudioDriver::calculateFrameOffset() and covered by
+	 * JackAudioDriver::updateTransportInfo() in the next cycle.
+	 *
+	 * Finally, EventQueue::push_event() is called with
+	 * #EVENT_RECALCULATERUBBERBAND and -1 as arguments.
+	 *
+	 * Called in H2Core::audioEngine_process() and H2Core::audioEngine_setSong(). The
+	 * function will only perform actions if #H2Core::m_audioEngineState is in
+	 * either #STATE_READY or #STATE_PLAYING.
+	 */
+	inline void			audioEngine_process_checkBPMChanged(Song *pSong);
+	inline void			audioEngine_process_playNotes( unsigned long nframes );
+	/**
+	 * Updating the TransportInfo of the audio driver.
+	 *
+	 * Firstly, it calls AudioOutput::updateTransportInfo() and then
+	 * updates the state of the audio engine #H2Core::m_audioEngineState depending
+	 * on the status of the audio driver.  E.g. if the JACK transport was
+	 * started by another client, the audio engine has to be started as
+	 * well. If TransportInfo::m_status is TransportInfo::ROLLING,
+	 * H2Core::audioEngine_start() is called with
+	 * TransportInfo::m_nFrames as argument if the engine is in
+	 * #STATE_READY. If #H2Core::m_audioEngineState is then still not in
+	 * #STATE_PLAYING, the function will return. Otherwise, the current
+	 * speed is getting updated by calling Hydrogen::setBPM using
+	 * TransportInfo::m_fBPM and #H2Core::m_nRealtimeFrames is set to
+	 * TransportInfo::m_nFrames.
+	 *
+	 * If the status is TransportInfo::STOPPED but the engine is still
+	 * running, H2Core::audioEngine_stop() will be called. In any case,
+	 * #H2Core::m_nRealtimeFrames will be incremented by #H2Core::m_nBufferSize to support
+	 * realtime keyboard and MIDI event timing.
+	 *
+	 * If the H2Core::H2Core::m_audioEngineState is neither in #STATE_READY nor
+	 * #STATE_PLAYING the function will immediately return.
+	 */
+	inline void			audioEngine_process_transport();
+
+	inline unsigned		audioEngine_renderNote( Note* pNote, const unsigned& nBufferSize );
+	// TODO: Add documentation of doErase, inPunchArea, and
+	// m_addMidiNoteVector
+	/**
+	 * Takes all notes from the current patterns, from the MIDI queue
+	 * #H2Core::m_midiNoteQueue, and those triggered by the metronome and pushes
+	 * them onto #H2Core::m_songNoteQueue for playback.
+	 *
+	 * Apart from the MIDI queue, the extraction of all notes will be
+	 * based on their position measured in ticks. Since Hydrogen does
+	 * support humanization, which also involves triggering a Note
+	 * earlier or later than its actual position, the loop over all ticks
+	 * won't be done starting from the current position but at some
+	 * position in the future. This value, also called @e lookahead, is
+	 * set to the sum of the maximum offsets introduced by both the random
+	 * humanization (2000 frames) and the deterministic lead-lag offset (5
+	 * times TransportInfo::m_nFrames) plus 1 (note that it's not given in
+	 * ticks but in frames!). Hydrogen thus loops over @a nFrames frames
+	 * starting at the current position + the lookahead (or at 0 when at
+	 * the beginning of the Song).
+	 *
+	 * Within this loop all MIDI notes in #H2Core::m_midiNoteQueue with a
+	 * Note::__position smaller or equal the current tick will be popped
+	 * and added to #H2Core::m_songNoteQueue and the #EVENT_METRONOME Event is
+	 * pushed to the EventQueue at a periodic rate. If in addition
+	 * Preferences::m_bUseMetronome is set to true,
+	 * #H2Core::m_pMetronomeInstrument will be used to push a 'click' to the
+	 * #H2Core::m_songNoteQueue too. All patterns enclosing the current tick will
+	 * be added to #H2Core::m_pPlayingPatterns and all their containing notes,
+	 * which position enclose the current tick too, will be added to the
+	 * #H2Core::m_songNoteQueue. If the Song is in Song::PATTERN_MODE, the
+	 * patterns used are not chosen by the actual position but by
+	 * #H2Core::m_nSelectedPatternNumber and #H2Core::m_pNextPatterns. 
+	 *
+	 * All notes obtained by the current patterns (and only those) are
+	 * also subject to humanization in the onset position of the created
+	 * Note. For now Hydrogen does support three options of altering
+	 * these:
+	 * - @b Swing - A deterministic offset determined by Song::__swing_factor
+	 * will be added for some notes in a periodic way.
+	 * - @b Humanize - A random offset drawn from Gaussian white noise
+	 * with a variance proportional to Song::__humanize_time_value will be
+	 * added to every Note.
+	 * - @b Lead/Lag - A deterministic offset determined by
+	 * Note::__lead_lag will be added for every note.
+	 *
+	 * If the AudioEngine it not in #STATE_PLAYING, the loop jumps right
+	 * to the next tick.
+	 *
+	 * \return
+	 * - -1 if in Song::SONG_MODE and no patterns left.
+	 * - 2 if the current pattern changed with respect to the last
+	 * cycle.
+	 */
+	inline int			audioEngine_updateNoteQueue( unsigned nFrames );
+	inline void			audioEngine_prepNoteQueue();
+
+	/**
+	 * Find a PatternList corresponding to the supplied tick position @a
+	 * nTick.
+	 *
+	 * Adds up the lengths of all pattern columns until @a nTick lies in
+	 * between the bounds of a Pattern.
+	 *
+	 * \param nTick Position in ticks.
+	 * \param bLoopMode Whether looping is enabled in the Song, see
+	 *   Song::is_loop_enabled(). If true, @a nTick is allowed to be
+	 *   larger than the total length of the Song.
+	 * \param pPatternStartTick Pointer to an integer the beginning of the
+	 *   found pattern list will be stored in (in ticks).
+	 * \return
+	 *   - -1 : pattern list couldn't be found.
+	 *   - >=0 : PatternList index in Song::__pattern_group_sequence.
+	 */
+	inline int			findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick );
+
+	void				audioEngine_seek( long long nFrames, bool bLoopMode = false );
+
+	void				audioEngine_restartAudioDrivers();
+	/** 
+	 * Creation and initialization of all audio and MIDI drivers called in
+	 * Hydrogen::Hydrogen().
+	 *
+	 * Which audio driver to use is specified in
+	 * Preferences::m_sAudioDriver. If "Auto" is selected, it will try to
+	 * initialize drivers using H2Core::createDriver() in the following order: 
+	 * - Windows:  "PortAudio", "Alsa", "CoreAudio", "Jack", "Oss",
+	 *   and "PulseAudio" 
+	 * - all other systems: "Jack", "Alsa", "CoreAudio", "PortAudio",
+	 *   "Oss", and "PulseAudio".
+	 * If all of them return NULL, #H2Core::m_pAudioDriver will be initialized
+	 * with the NullDriver instead. If a specific choice is contained in
+	 * Preferences::m_sAudioDriver and H2Core::createDriver() returns NULL, the
+	 * NullDriver will be initialized too.
+	 *
+	 * It probes Preferences::m_sMidiDriver to create a midi driver using
+	 * either AlsaMidiDriver::AlsaMidiDriver(),
+	 * PortMidiDriver::PortMidiDriver(), CoreMidiDriver::CoreMidiDriver(),
+	 * or JackMidiDriver::JackMidiDriver(). Afterwards, it sets
+	 * #H2Core::m_pMidiDriverOut and #H2Core::m_pMidiDriver to the freshly created midi
+	 * driver and calls their open() and setActive( true ) functions.
+	 *
+	 * If a Song is already present, the state of the AudioEngine
+	 * #H2Core::m_audioEngineState will be set to #STATE_READY, the bpm of the
+	 * #H2Core::m_pAudioDriver will be set to the tempo of the Song Song::__bpm
+	 * using AudioOutput::setBpm(), and #STATE_READY is pushed on the
+	 * EventQueue. If no Song is present, the state will be
+	 * #STATE_PREPARED and no bpm will be set.
+	 *
+	 * All the actions mentioned so far will be performed after locking
+	 * both the AudioEngine using AudioEngine::lock() and the mutex of the
+	 * audio output buffer #H2Core::mutex_OutputPointer. When they are completed
+	 * both mutex are unlocked and the audio driver is connected via
+	 * AudioOutput::connect(). If this is not successful, the audio driver
+	 * will be overwritten with the NullDriver and this one is connected
+	 * instead.
+	 *
+	 * Finally, H2Core::audioEngine_renameJackPorts() (if #H2CORE_HAVE_JACK is set)
+	 * and H2Core::audioEngine_setupLadspaFX() are called.
+	 *
+	 * The state of the AudioEngine #H2Core::m_audioEngineState must not be in
+	 * #STATE_INITIALIZED or the function will just unlock both mutex and
+	 * returns.
+	 */
+	void				audioEngine_startAudioDrivers();
+	/**
+	 * Stops all audio and MIDI drivers.
+	 *
+	 * Uses H2Core::audioEngine_stop() if the AudioEngine is still in state
+	 * #H2Core::m_audioEngineState #STATE_PLAYING, sets its state to
+	 * #STATE_INITIALIZED, locks the AudioEngine using
+	 * AudioEngine::lock(), deletes #H2Core::m_pMidiDriver and #H2Core::m_pAudioDriver and
+	 * reinitializes them to NULL. 
+	 *
+	 * If #H2Core::m_audioEngineState is neither in #STATE_PREPARED or
+	 * #STATE_READY, the function returns before deleting anything.
+	 */
+	void				audioEngine_stopAudioDrivers();
+
+	timeval currentTime2();
+	int randomValue( int max );
+	float getGaussian( float z );
+	void updateTickSize();
+	void audioEngine_setupLadspaFX( unsigned nBufferSize );
+	void audioEngine_renameJackPorts( Song *pSong);
+	void audioEngine_raiseError( unsigned nErrorCode );
+	AudioOutput* createDriver( const QString& sDriver );
+	void audioEngine_process_clearAudioBuffers( uint32_t nFrames );
 };
 
 
