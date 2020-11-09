@@ -173,7 +173,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != nullptr) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
-		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		int nInstr = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 		if ( nInstr >= (int)pInstrList->size() ) {
 			nInstr = -1;
 		}

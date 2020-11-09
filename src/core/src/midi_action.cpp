@@ -214,7 +214,7 @@ void MidiActionManager::create_instance() {
 }
 
 bool MidiActionManager::play(Action * , Hydrogen* pEngine, targeted_element ) {
-	int nState = pEngine->getState();
+	int nState = pEngine->getAudioEngine()->getState();
 	if ( nState == STATE_READY ) {
 		pEngine->sequencer_play();
 	}
@@ -235,7 +235,7 @@ bool MidiActionManager::stop(Action * , Hydrogen* pEngine, targeted_element ) {
 
 bool MidiActionManager::play_stop_pause_toggle(Action * pAction, Hydrogen* pEngine, targeted_element ) {
 	QString sActionString = pAction->getType();
-	int nState = pEngine->getState();
+	int nState = pEngine->getAudioEngine()->getState();
 	switch ( nState )
 	{
 	case STATE_READY:
@@ -341,10 +341,10 @@ bool MidiActionManager::select_next_pattern(Action * pAction, Hydrogen* pEngine,
 		return false;
 	}
 	if(Preferences::get_instance()->patternModePlaysSelected()) {
-		pEngine->setSelectedPatternNumber( row );
+		pEngine->getAudioEngine()->setSelectedPatternNumber( row );
 	}
 	else {
-		pEngine->sequencer_setNextPattern( row );
+		pEngine->getAudioEngine()->sequencer_setNextPattern( row );
 	}
 	return true;
 }
@@ -360,7 +360,7 @@ bool MidiActionManager::select_only_next_pattern(Action * pAction, Hydrogen* pEn
 		return true;
 	}
 	
-	pEngine->sequencer_setOnlyNextPattern( row );
+	pEngine->getAudioEngine()->getOnlyNextPattern( row );
 	return true; 
 }
 
@@ -369,12 +369,12 @@ bool MidiActionManager::select_next_pattern_relative(Action * pAction, Hydrogen*
 	if(!Preferences::get_instance()->patternModePlaysSelected()) {
 		return true;
 	}
-	int row = pEngine->getSelectedPatternNumber() + pAction->getParameter1().toInt(&ok,10);
+	int row = pEngine->getAudioEngine()->getSelectedPatternNumber() + pAction->getParameter1().toInt(&ok,10);
 	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
 		return false;
 	}
 
-	pEngine->setSelectedPatternNumber( row );
+	pEngine->getAudioEngine()->setSelectedPatternNumber( row );
 	return true;
 }
 
@@ -387,7 +387,7 @@ bool MidiActionManager::select_next_pattern_cc_absolute(Action * pAction, Hydrog
 	}
 	
 	if(Preferences::get_instance()->patternModePlaysSelected()) {
-		pEngine->setSelectedPatternNumber( row );
+		pEngine->getAudioEngine()->setSelectedPatternNumber( row );
 	}
 	else {
 		return true;// only usefully in normal pattern mode
@@ -400,7 +400,7 @@ bool MidiActionManager::select_next_pattern_cc_absolute(Action * pAction, Hydrog
 bool MidiActionManager::select_next_pattern_promptly(Action * pAction, Hydrogen* pEngine, targeted_element ) {
 	bool ok;
 	int row = pAction->getParameter2().toInt(&ok,10);
-	pEngine->setSelectedPatternNumberWithoutGuiEvent( row );
+	pEngine->getAudioEngine()->setSelectedPatternNumberWithoutGuiEvent( row );
 	
 	return true;
 }
@@ -408,10 +408,10 @@ bool MidiActionManager::select_next_pattern_promptly(Action * pAction, Hydrogen*
 bool MidiActionManager::select_and_play_pattern(Action * pAction, Hydrogen* pEngine, targeted_element ) {
 	bool ok;
 	int row = pAction->getParameter1().toInt(&ok,10);
-	pEngine->setSelectedPatternNumber( row );
-	pEngine->sequencer_setNextPattern( row );
+	pEngine->getAudioEngine()->setSelectedPatternNumber( row );
+	pEngine->getAudioEngine()->sequencer_setNextPattern( row );
 
-	int nState = pEngine->getState();
+	int nState = pEngine->getAudioEngine()->getState();
 	if ( nState == STATE_READY ) {
 		pEngine->sequencer_play();
 	}
@@ -427,7 +427,7 @@ bool MidiActionManager::select_instrument(Action * pAction, Hydrogen* pEngine, t
 		instrument_number = pEngine->getSong()->get_instrument_list()->size() -1;
 	}
 	
-	pEngine->setSelectedInstrumentNumber( instrument_number );
+	pEngine->getAudioEngine()->setSelectedInstrumentNumber( instrument_number );
 	return true;
 }
 
@@ -451,7 +451,7 @@ bool MidiActionManager::effect_level_absolute(Action * pAction, Hydrogen* pEngin
 				pInstr->set_fx_level( 0 , nEffect._id );
 			}
 			
-			pEngine->setSelectedInstrumentNumber( nLine );			
+			pEngine->getAudioEngine()->setSelectedInstrumentNumber( nLine );			
 		} else {
 			bSuccess = false;
 		}
@@ -530,7 +530,7 @@ bool MidiActionManager::strip_volume_absolute(Action * pAction, Hydrogen* pEngin
 			pInstr->set_volume( 0 );
 		}
 	
-		pEngine->setSelectedInstrumentNumber(nLine);
+		pEngine->getAudioEngine()->setSelectedInstrumentNumber(nLine);
 	}
 
 	return true;
@@ -566,7 +566,7 @@ bool MidiActionManager::strip_volume_relative(Action * pAction, Hydrogen* pEngin
 			pInstr->set_volume( 0 );
 		}
 	
-		pEngine->setSelectedInstrumentNumber(nLine);
+		pEngine->getAudioEngine()->setSelectedInstrumentNumber(nLine);
 	}
 
 	return true;
@@ -587,7 +587,7 @@ bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pEngine, target
 		float pan_L;
 		float pan_R;
 	
-		pEngine->setSelectedInstrumentNumber( nLine );
+		pEngine->getAudioEngine()->setSelectedInstrumentNumber( nLine );
 	
 		Instrument *pInstr = pInstrList->get( nLine );
 	
@@ -621,7 +621,7 @@ bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pEngine, target
 		pInstr->set_pan_l( pan_L );
 		pInstr->set_pan_r( pan_R );
 	
-		pEngine->setSelectedInstrumentNumber(nLine);
+		pEngine->getAudioEngine()->setSelectedInstrumentNumber(nLine);
 	}
 
 	return true;
@@ -644,7 +644,7 @@ bool MidiActionManager::pan_relative(Action * pAction, Hydrogen* pEngine, target
 		float pan_L;
 		float pan_R;
 	
-		pEngine->setSelectedInstrumentNumber( nLine );
+		pEngine->getAudioEngine()->setSelectedInstrumentNumber( nLine );
 	
 		Instrument *pInstr = pInstrList->get( nLine );
 	
@@ -684,7 +684,7 @@ bool MidiActionManager::pan_relative(Action * pAction, Hydrogen* pEngine, target
 		pInstr->set_pan_l( pan_L );
 		pInstr->set_pan_r( pan_R );
 	
-		pEngine->setSelectedInstrumentNumber(nLine);
+		pEngine->getAudioEngine()->setSelectedInstrumentNumber(nLine);
 	}
 
 	return true;
@@ -721,7 +721,7 @@ bool MidiActionManager::gain_level_absolute(Action * pAction, Hydrogen* pEngine,
 			pLayer->set_gain( 0 );
 		}
 	
-		pEngine->setSelectedInstrumentNumber( nLine );
+		pEngine->getAudioEngine()->setSelectedInstrumentNumber( nLine );
 	
 		pEngine->refreshInstrumentParameters( nLine );
 	}
@@ -760,7 +760,7 @@ bool MidiActionManager::pitch_level_absolute(Action * pAction, Hydrogen* pEngine
 			pLayer->set_pitch( -24.5 );
 		}
 	
-		pEngine->setSelectedInstrumentNumber( nLine );
+		pEngine->getAudioEngine()->setSelectedInstrumentNumber( nLine );
 	
 		pEngine->refreshInstrumentParameters( nLine );
 	}
@@ -790,7 +790,7 @@ bool MidiActionManager::filter_cutoff_level_absolute(Action * pAction, Hydrogen*
 			pInstr->set_filter_cutoff( 0 );
 		}
 	
-		pEngine->setSelectedInstrumentNumber( nLine );
+		pEngine->getAudioEngine()->setSelectedInstrumentNumber( nLine );
 	
 		pEngine->refreshInstrumentParameters( nLine );
 	}
@@ -905,14 +905,14 @@ bool MidiActionManager::bpm_decrease(Action * pAction, Hydrogen* pEngine, target
 }
 
 bool MidiActionManager::next_bar(Action * , Hydrogen* pEngine, targeted_element ) {
-	pEngine->setPatternPos(pEngine->getPatternPos() +1 );
+	pEngine->setPatternPos(pEngine->getAudioEngine()->getPatternPos() +1 );
 	pEngine->setTimelineBpm();
 	return true;
 }
 
 
 bool MidiActionManager::previous_bar(Action * , Hydrogen* pEngine, targeted_element ) {
-	pEngine->setPatternPos(pEngine->getPatternPos() -1 );
+	pEngine->setPatternPos(pEngine->getAudioEngine()->getPatternPos() -1 );
 	pEngine->setTimelineBpm();
 	return true;
 }
@@ -942,7 +942,7 @@ bool MidiActionManager::playlist_previous_song(Action * pAction, Hydrogen* pEngi
 }
 
 bool MidiActionManager::record_ready(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	if ( pEngine->getState() != STATE_PLAYING ) {
+	if ( pEngine->getAudioEngine()->getState() != STATE_PLAYING ) {
 		if (!Preferences::get_instance()->getRecordEvents()) {
 			Preferences::get_instance()->setRecordEvents(true);
 		}

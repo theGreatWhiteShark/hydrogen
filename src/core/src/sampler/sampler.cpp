@@ -155,7 +155,7 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 
 	while ( !__queuedNoteOffs.empty() ) {
 		pNote =  __queuedNoteOffs[0];
-		MidiOutput* pMidiOut = Hydrogen::get_instance()->getMidiOutput();
+		MidiOutput* pMidiOut = Hydrogen::get_instance()->getAudioEngine()->getMidiOutput();
 		
 		if( pMidiOut != nullptr && !pNote->get_instrument()->is_muted() ){
 			pMidiOut->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(), pNote->get_midi_key(),  pNote->get_midi_velocity() );
@@ -256,7 +256,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 	unsigned int nFramepos;
 	Hydrogen* pEngine = Hydrogen::get_instance();
 	AudioOutput* audio_output = pEngine->getAudioOutput();
-	if (  pEngine->getState() == STATE_PLAYING ) {
+	if (  pEngine->getAudioEngine()->getState() == STATE_PLAYING ) {
 		nFramepos = audio_output->m_transport.m_nFrames;
 	} else {
 		// use this to support realtime events when not playing
@@ -665,8 +665,8 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		//_INFOLOG( "total pitch: " + to_string( fTotalPitch ) );
 		if( (int) pSelectedLayer->SamplePosition == 0  && !pInstr->is_muted() )
 		{
-			if( Hydrogen::get_instance()->getMidiOutput() != nullptr ){
-				Hydrogen::get_instance()->getMidiOutput()->handleQueueNote( pNote );
+			if( Hydrogen::get_instance()->getAudioEngine()->getMidiOutput() != nullptr ){
+				Hydrogen::get_instance()->getAudioEngine()->getMidiOutput()->handleQueueNote( pNote );
 			}
 		}
 
@@ -694,7 +694,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	Song* pSong = pEngine->getSong();
 
 	if(   !pSong->get_playback_track_enabled()
-	   || pEngine->getState() != STATE_PLAYING
+	   || pEngine->getAudioEngine()->getState() != STATE_PLAYING
 	   || pSong->get_mode() != Song::SONG_MODE)
 	{
 		return false;
@@ -1321,12 +1321,12 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 	if ( instrument ) { // stop all notes using this instrument
 		Hydrogen *pEngine = Hydrogen::get_instance();
 		Song* pSong = pEngine->getSong();
-		int selectedpattern = pEngine->getSelectedPatternNumber();
+		int selectedpattern = pEngine->getAudioEngine()->getSelectedPatternNumber();
 		Pattern* pCurrentPattern = nullptr;
 
 
 		if ( pSong->get_mode() == Song::PATTERN_MODE ||
-		( pEngine->getState() != STATE_PLAYING )){
+		( pEngine->getAudioEngine()->getState() != STATE_PLAYING )){
 			PatternList *pPatternList = pSong->get_pattern_list();
 			if ( ( selectedpattern != -1 )
 			&& ( selectedpattern < ( int )pPatternList->size() ) ) {
@@ -1336,7 +1336,7 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 		{
 			std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 //			Pattern *pPattern = NULL;
-			int pos = pEngine->getPatternPos() +1;
+			int pos = pEngine->getAudioEngine()->getPatternPos() +1;
 			for ( int i = 0; i < pos; ++i ) {
 				PatternList *pColumn = ( *pColumns )[i];
 				pCurrentPattern = pColumn->get( 0 );
@@ -1366,7 +1366,7 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 								}
 							}else
 							{
-								if ( pNote->get_instrument() == pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber())
+								if ( pNote->get_instrument() == pEngine->getSong()->get_instrument_list()->get( pEngine->getAudioEngine()->getSelectedInstrumentNumber())
 								&& pNote->get_position() == noteOnTick ) {
 									Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 									if ( ticks >  patternsize ) {

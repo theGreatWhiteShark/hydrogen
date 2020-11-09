@@ -655,7 +655,7 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 void PatternEditorPanel::selectedPatternChangedEvent()
 {
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
-	int nSelectedPatternNumber = Hydrogen::get_instance()->getSelectedPatternNumber();
+	int nSelectedPatternNumber = Hydrogen::get_instance()->getAudioEngine()->getSelectedPatternNumber();
 
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
 		// update pattern name text
@@ -863,7 +863,7 @@ void PatternEditorPanel::patternSizeChanged( int nSelected )
 	
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	
-	if ( pEngine->getState() != STATE_READY ) {	
+	if ( pEngine->getAudioEngine()->getState() != STATE_READY ) {	
 		__pattern_size_combo->select( ((m_pPattern->get_length() / nEighth) - 1), false );
 		QMessageBox::information( this, "Hydrogen", tr( "Is not possible to change the pattern size when playing." ) );
 		return;
@@ -889,7 +889,7 @@ void PatternEditorPanel::patternSizeChanged( int nSelected )
 void PatternEditorPanel::moveUpBtnClicked(Button *)
 {
 	Hydrogen *engine = Hydrogen::get_instance();
-	int nSelectedInstrument = engine->getSelectedInstrumentNumber();
+	int nSelectedInstrument = engine->getAudioEngine()->getSelectedInstrumentNumber();
 
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
@@ -900,7 +900,7 @@ void PatternEditorPanel::moveUpBtnClicked(Button *)
 		pInstrumentList->swap( nSelectedInstrument -1, nSelectedInstrument );
 
 		Hydrogen::get_instance()->getAudioEngine()->unlock();
-		engine->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
+		engine->getAudioEngine()->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
 
 		pSong->set_is_modified( true );
 	}
@@ -914,7 +914,7 @@ void PatternEditorPanel::moveUpBtnClicked(Button *)
 void PatternEditorPanel::moveDownBtnClicked(Button *)
 {
 	Hydrogen *engine = Hydrogen::get_instance();
-	int nSelectedInstrument = engine->getSelectedInstrumentNumber();
+	int nSelectedInstrument = engine->getAudioEngine()->getSelectedInstrumentNumber();
 
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
@@ -925,7 +925,7 @@ void PatternEditorPanel::moveDownBtnClicked(Button *)
 		pInstrumentList->swap( nSelectedInstrument, nSelectedInstrument + 1 );
 
 		Hydrogen::get_instance()->getAudioEngine()->unlock();
-		engine->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
+		engine->getAudioEngine()->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
 
 		pSong->set_is_modified( true );
 	}
@@ -1067,7 +1067,7 @@ void PatternEditorPanel::setCursorHidden( bool hidden ) {
 
 void PatternEditorPanel::ensureCursorVisible()
 {
-	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	int nSelectedInstrument = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 	uint y = nSelectedInstrument * Preferences::get_instance()->getPatternEditorGridHeight();
 	m_pEditorScrollView->ensureVisible( m_nCursorPosition * m_pPatternEditorRuler->getGridWidth(), y );
 }

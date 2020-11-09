@@ -133,7 +133,7 @@ void PianoRollEditor::finishUpdateEditor()
 	// Ensure that m_pPattern is up to date.
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	PatternList *pPatternList = pHydrogen->getSong()->get_pattern_list();
-	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
+	int nSelectedPatternNumber = pHydrogen->getAudioEngine()->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
@@ -173,7 +173,7 @@ void PianoRollEditor::selectedPatternChangedEvent()
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
+	int nSelectedPatternNumber = pEngine->getAudioEngine()->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
@@ -477,7 +477,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 		return;
 	}
 
-	if ( nInstrument != Hydrogen::get_instance()->getSelectedInstrumentNumber() ) {
+	if ( nInstrument != Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber() ) {
 		return;
 	}
 
@@ -597,7 +597,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	Note::Octave octave = (Note::Octave)nOctave;
 	Note::Key notekey = (Note::Key)nNotekey;
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	int nSelectedInstrumentnumber = pHydrogen->getSelectedInstrumentNumber();
+	int nSelectedInstrumentnumber = pHydrogen->getAudioEngine()->getSelectedInstrumentNumber();
 	Song *pSong = pHydrogen->getSong();
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
 
@@ -693,7 +693,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	int pressedline = ((int) ev->y()) / ((int) m_nRowHeight);
 
 	Instrument *pSelectedInstrument = nullptr;
-	int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	int nSelectedInstrumentnumber = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 	pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
 	assert(pSelectedInstrument);
 
@@ -752,7 +752,7 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	Hydrogen *pH2 = Hydrogen::get_instance();
 	int nColumn = getColumn( ev );
 	Song *pSong = pH2->getSong();
-	int nSelectedInstrumentnumber = pH2->getSelectedInstrumentNumber();
+	int nSelectedInstrumentnumber = pH2->getAudioEngine()->getSelectedInstrumentNumber();
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 	m_pPatternEditorPanel->setCursorHidden( true );
@@ -1204,8 +1204,8 @@ void PianoRollEditor::selectAll()
 	m_selection.clearSelection();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
-	Pattern *pPattern = pSong->get_pattern_list()->get( pHydrogen->getSelectedPatternNumber() );
-	Instrument *pInstrument =  pSong->get_instrument_list()->get( pHydrogen->getSelectedInstrumentNumber() );
+	Pattern *pPattern = pSong->get_pattern_list()->get( pHydrogen->getAudioEngine()->getSelectedPatternNumber() );
+	Instrument *pInstrument =  pSong->get_instrument_list()->get( pHydrogen->getAudioEngine()->getSelectedInstrumentNumber() );
 	FOREACH_NOTE_CST_IT_BEGIN_END( pPattern->get_notes(), it )
 	{
 		if ( it->second->get_instrument() == pInstrument ) {
@@ -1239,7 +1239,7 @@ void PianoRollEditor::deleteSelection()
 {
 	if ( m_selection.begin() != m_selection.end() ) {
 		// Delete a selection.
-		int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		int nSelectedInstrumentnumber = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 		pUndo->beginMacro("delete notes");
 		validateSelection();
@@ -1277,7 +1277,7 @@ void PianoRollEditor::copy()
 
 	positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
 	positionNode.write_int( "pitch", m_nCursorPitch );
-	positionNode.write_int( "instrument", Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	positionNode.write_int( "instrument", Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber() );
 
 	for ( Note *pNote : m_selection ) {
 		XMLNode note_node = noteList.createNode( "note" );
@@ -1305,7 +1305,7 @@ void PianoRollEditor::paste()
 	QClipboard *clipboard = QApplication::clipboard();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 	InstrumentList *pInstrList = Hydrogen::get_instance()->getSong()->get_instrument_list();
-	int nInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	int nInstrument = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 	XMLNode noteList;
 	int nDeltaPos = 0, nDeltaPitch = 0;
 
@@ -1607,8 +1607,8 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 	validateSelection();
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
-	int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
+	int nSelectedPatternNumber = pHydrogen->getAudioEngine()->getSelectedPatternNumber();
+	int nSelectedInstrumentNumber = pHydrogen->getAudioEngine()->getSelectedInstrumentNumber();
 
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 
@@ -1670,7 +1670,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 
 	int w = 8;
 	int h = m_nRowHeight - 2;
-	int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	int nInstr = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 	Instrument *pInstr = Hydrogen::get_instance()->getSong()->get_instrument_list()->get( nInstr );
 
 	r = r.normalized();

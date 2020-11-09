@@ -99,8 +99,8 @@ void AudioEngineInfoForm::updateInfo()
 
 	// Song position
 	QString sSongPos = "N/A";
-	if ( pEngine->getPatternPos() != -1 ) {
-		sSongPos = QString::number( pEngine->getPatternPos() );
+	if ( pEngine->getAudioEngine()->getPatternPos() != -1 ) {
+		sSongPos = QString::number( pEngine->getAudioEngine()->getPatternPos() );
 	}
 	m_pSongPositionLbl->setText( sSongPos );
 
@@ -110,10 +110,10 @@ void AudioEngineInfoForm::updateInfo()
 
 	// Process time
 	int perc = 0;
-	if ( pEngine->getMaxProcessTime() != 0.0 ) {
-		perc= (int)( pEngine->getProcessTime() / ( pEngine->getMaxProcessTime() / 100.0 ) );
+	if ( pEngine->getAudioEngine()->getMaxProcessTime() != 0.0 ) {
+		perc= (int)( pEngine->getAudioEngine()->getProcessTime() / ( pEngine->getAudioEngine()->getMaxProcessTime() / 100.0 ) );
 	}
-	sprintf(tmp, "%#.2f / %#.2f  (%d%%)", pEngine->getProcessTime(), pEngine->getMaxProcessTime(), perc );
+	sprintf(tmp, "%#.2f / %#.2f  (%d%%)", pEngine->getAudioEngine()->getProcessTime(), pEngine->getAudioEngine()->getMaxProcessTime(), perc );
 	processTimeLbl->setText(tmp);
 
 	// Song state
@@ -163,7 +163,7 @@ void AudioEngineInfoForm::updateInfo()
 
 
 	// Midi driver info
-	MidiInput *pMidiDriver = pEngine->getMidiInput();
+	MidiInput *pMidiDriver = pEngine->getAudioEngine()->getMidiInput();
 	if (pMidiDriver) {
 		midiDriverName->setText( pMidiDriver->class_name() );
 	}
@@ -174,7 +174,7 @@ void AudioEngineInfoForm::updateInfo()
 	m_pMidiDeviceName->setText( Preferences::get_instance()->m_sMidiPortName );
 
 
-	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
+	int nSelectedPatternNumber = pEngine->getAudioEngine()->getSelectedPatternNumber();
 	if (nSelectedPatternNumber == -1) {
 		selectedPatLbl->setText( "N/A");
 	}
@@ -182,7 +182,7 @@ void AudioEngineInfoForm::updateInfo()
 		selectedPatLbl->setText( QString("%1").arg(nSelectedPatternNumber) );
 	}
 
-	int nSelectedInstrumentNumber = pEngine->getSelectedInstrumentNumber();
+	int nSelectedInstrumentNumber = pEngine->getAudioEngine()->getSelectedInstrumentNumber();
 	if (nSelectedInstrumentNumber == -1) {
 		m_pSelectedInstrLbl->setText( "N/A" );
 	}
@@ -218,7 +218,7 @@ void AudioEngineInfoForm::updateInfo()
 void AudioEngineInfoForm::updateAudioEngineState() {
 	// Audio Engine state
 	QString stateTxt;
-	int state = Hydrogen::get_instance()->getState();
+	int state = Hydrogen::get_instance()->getAudioEngine()->getState();
 	switch (state) {
 	case STATE_UNINITIALIZED:
 		stateTxt = "Uninitialized";

@@ -65,12 +65,12 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 			}
 			else
 			{
-				lineEditBpm->setText( QString("%1").arg( pHydrogen->getNewBpmJTM()) );
+				lineEditBpm->setText( QString("%1").arg( pHydrogen->getAudioEngine()->getNewBpmJTM()) );
 			}
 		}
 	}else
 	{
-		lineEditBpm->setText( QString("%1").arg( pHydrogen->getNewBpmJTM() ) );
+		lineEditBpm->setText( QString("%1").arg( pHydrogen->getAudioEngine()->getNewBpmJTM() ) );
 	}
 }
 

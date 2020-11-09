@@ -132,7 +132,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	m_pPatternEditorPanel->setCursorPosition( column );
 	m_pPatternEditorPanel->setCursorHidden( true );
 
-	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	int nSelectedInstrument = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 
 	const Pattern::notes_t* notes = m_pPattern->get_notes();
@@ -267,7 +267,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 	column = column / width;
 	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
 
-	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	int nSelectedInstrument = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 
 	__nSelectedInstrument = nSelectedInstrument;
@@ -358,7 +358,7 @@ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 		int keyval = val;
 		val = val / height();
 
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		int nSelectedInstrument = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 		Song *pSong = (Hydrogen::get_instance())->getSong();
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
@@ -542,7 +542,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 		if ( delta != 0.0 || bRepeatLastValue ) {
 			int column = m_pPatternEditorPanel->getCursorPosition();
-			int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+			int nSelectedInstrument = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 			Song *pSong = (Hydrogen::get_instance())->getSong();
 
 
@@ -827,7 +827,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 
 	// draw velocity lines
 	if (m_pPattern != nullptr) {
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		int nSelectedInstrument = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
@@ -991,7 +991,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 	}
 
 	if ( m_pPattern ) {
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		int nSelectedInstrument = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
@@ -1151,7 +1151,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 	}
 
 	if ( m_pPattern ) {
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		int nSelectedInstrument = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
@@ -1366,7 +1366,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 //paint the octave
 	if ( m_pPattern ) {
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		int nSelectedInstrument = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
@@ -1386,7 +1386,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 //paint the note
 	if ( m_pPattern ) {
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		int nSelectedInstrument = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
@@ -1420,7 +1420,7 @@ void NotePropertiesRuler::updateEditor()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
+	int nSelectedPatternNumber = pEngine->getAudioEngine()->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}

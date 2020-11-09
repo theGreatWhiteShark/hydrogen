@@ -230,7 +230,7 @@ MainForm::~MainForm()
 	//if a playlist is used, we save the last playlist-path to hydrogen.conf
 	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->getFilename() );
 
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -520,7 +520,7 @@ bool MainForm::action_file_exit()
 void MainForm::action_file_new()
 {
 	Hydrogen * pEngine = Hydrogen::get_instance();
-	if ( (pEngine->getState() == STATE_PLAYING) ) {
+	if ( (pEngine->getAudioEngine()->getState() == STATE_PLAYING) ) {
 		pEngine->sequencer_stop();
 	}
 
@@ -535,7 +535,7 @@ void MainForm::action_file_new()
 	Song * pSong = Song::get_empty_song();
 	pSong->set_filename( "" );
 	h2app->setSong(pSong);
-	pEngine->setSelectedPatternNumber( 0 );
+	pEngine->getAudioEngine()->setSelectedPatternNumber( 0 );
 	h2app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	h2app->getSongEditorPanel()->updatePositionRuler();
 
@@ -551,7 +551,7 @@ void MainForm::action_file_save_as()
 {
 	Hydrogen* pEngine = Hydrogen::get_instance();
 
-	if ( pEngine->getState() == STATE_PLAYING ) {
+	if ( pEngine->getAudioEngine()->getState() == STATE_PLAYING ) {
 			pEngine->sequencer_stop();
 	}
 
@@ -675,13 +675,13 @@ void MainForm::showUserManual()
 
 void MainForm::action_file_export_pattern_as()
 {
-	if ( ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) ) {
+	if ( ( Hydrogen::get_instance()->getAudioEngine()->getState() == STATE_PLAYING ) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
-	Pattern *pPattern = pSong->get_pattern_list()->get( pEngine->getSelectedPatternNumber() );
+	Pattern *pPattern = pSong->get_pattern_list()->get( pEngine->getAudioEngine()->getSelectedPatternNumber() );
 
 	QDir dir = Preferences::get_instance()->__lastspatternDirectory;
 
@@ -726,7 +726,7 @@ void MainForm::action_file_export_pattern_as()
 
 void MainForm::action_file_open() 
 {
-	if ( ((Hydrogen::get_instance())->getState() == STATE_PLAYING) ) {
+	if ( ((Hydrogen::get_instance())->getAudioEngine()->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -764,7 +764,7 @@ void MainForm::action_file_openPattern()
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
-	int selectedPatternPosition = pEngine->getSelectedPatternNumber();
+	int selectedPatternPosition = pEngine->getAudioEngine()->getSelectedPatternNumber();
 
 	Instrument *pInstrument = pSong->get_instrument_list()->get ( 0 );
 	assert ( pInstrument );
@@ -806,7 +806,7 @@ void MainForm::action_file_openPattern()
 /// \todo parametrizzare il metodo action_file_open ed eliminare il seguente...
 void MainForm::action_file_openDemo()
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -1146,7 +1146,7 @@ void MainForm::closeEvent( QCloseEvent* ev )
 
 void MainForm::action_file_export()
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -1250,7 +1250,7 @@ void MainForm::closeAll() {
 
 void MainForm::onPlayStopAccelEvent()
 {
-	int nState = Hydrogen::get_instance()->getState();
+	int nState = Hydrogen::get_instance()->getAudioEngine()->getState();
 	switch (nState) {
 	case STATE_READY:
 		Hydrogen::get_instance()->sequencer_play();
@@ -1357,7 +1357,7 @@ void MainForm::action_file_open_recent(QAction *pAction)
 void MainForm::openSongFile( const QString& sFilename )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	if ( pEngine->getState() == STATE_PLAYING ) {
+	if ( pEngine->getAudioEngine()->getState() == STATE_PLAYING ) {
 		pEngine->sequencer_stop();
 	}
 
@@ -1383,7 +1383,7 @@ void MainForm::openSongFile( const QString& sFilename )
 	h2app->setSong( pSong );
 
 	updateRecentUsedSongList();
-	pEngine->setSelectedPatternNumber( 0 );
+	pEngine->getAudioEngine()->setSelectedPatternNumber( 0 );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
@@ -1647,17 +1647,17 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			break;
 
 		case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
+			pHydrogen->getCoreActionController()->relocate( pHydrogen->getAudioEngine()->getPatternPos() - 1 );
 			return true;
 			break;
 
 		case  Qt::Key_F10 : // Qt::Key_Right do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
+			pHydrogen->getCoreActionController()->relocate( pHydrogen->getAudioEngine()->getPatternPos() + 1 );
 			return true;
 			break;
 
 		case Qt::Key_L :
-			pHydrogen->togglePlaysSelected();
+			pHydrogen->getAudioEngine()->togglePlaysSelected();
 			QString msg = Preferences::get_instance()->patternModePlaysSelected() ? "Single pattern mode" : "Stacked pattern mode";
 			app->setStatusBarMessage( msg, 5000 );
 			app->getSongEditorPanel()->setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
@@ -1709,7 +1709,7 @@ void MainForm::action_debug_printObjects()
 
 void MainForm::action_file_export_midi()
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -1723,7 +1723,7 @@ void MainForm::action_file_export_midi()
 
 void MainForm::action_file_export_lilypond()
 {
-	if ( ( ( Hydrogen::get_instance() )->getState() == STATE_PLAYING ) ) {
+	if ( ( ( Hydrogen::get_instance() )->getAudioEngine()->getState() == STATE_PLAYING ) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 

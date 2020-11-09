@@ -140,8 +140,8 @@ void CpuLoadWidget::updateCpuLoadWidget()
 	// Process time
 	H2Core::Hydrogen *engine = H2Core::Hydrogen::get_instance();
 	int perc = 0;
-	if ( engine->getMaxProcessTime() != 0.0 ) {
-		perc = (int)( engine->getProcessTime() / ( engine->getMaxProcessTime() / 100.0 ) );
+	if ( engine->getAudioEngine()->getMaxProcessTime() != 0.0 ) {
+		perc = (int)( engine->getAudioEngine()->getProcessTime() / ( engine->getAudioEngine()->getMaxProcessTime() / 100.0 ) );
 	}
 	setValue( perc / 100.0 );
 

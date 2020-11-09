@@ -735,7 +735,7 @@ void SoundLibraryPanel::on_songLoadAction()
 	QString sFilename = Filesystem::song_path( __sound_library_tree->currentItem()->text( 0 ) );
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() == STATE_PLAYING ) {
 		pHydrogen->sequencer_stop();
 	}
 
@@ -757,7 +757,7 @@ void SoundLibraryPanel::on_songLoadAction()
 	pH2App->setSong( pSong );
 
 	//updateRecentUsedSongList();
-	pHydrogen->setSelectedPatternNumber( 0 );
+	pHydrogen->getAudioEngine()->setSelectedPatternNumber( 0 );
 }
 
 

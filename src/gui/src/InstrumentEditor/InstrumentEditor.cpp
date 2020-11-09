@@ -533,7 +533,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	
 	if ( pSong != nullptr ) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
-		int nInstr = pEngine->getSelectedInstrumentNumber();
+		int nInstr = pEngine->getAudioEngine()->getSelectedInstrumentNumber();
 		if ( nInstr >= pInstrList->size() ) {
 			nInstr = -1;
 		}
@@ -929,7 +929,7 @@ void InstrumentEditor::loadLayer()
 			Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 			Song *pSong = pEngine->getSong();
 			InstrumentList *pInstrList = pSong->get_instrument_list();
-			pInstr = pInstrList->get( pEngine->getSelectedInstrumentNumber() );
+			pInstr = pInstrList->get( pEngine->getAudioEngine()->getSelectedInstrumentNumber() );
 
 			/*
 				if we're using multiple layers, we start inserting the first layer

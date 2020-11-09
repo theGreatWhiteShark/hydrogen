@@ -126,7 +126,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	}
 	
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
+	int nSelectedPatternNumber = pEngine->getAudioEngine()->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() )  ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
@@ -154,7 +154,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
 
 
-	int state = pEngine->getState();
+	int state = pEngine->getAudioEngine()->getState();
 	if ( ( state == STATE_PLAYING ) && (bActive) ) {
 		m_nTicks = pEngine->getTickPosition();
 	}

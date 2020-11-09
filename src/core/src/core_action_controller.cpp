@@ -74,7 +74,7 @@ void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	if ( bSelectStrip ) {
-		pHydrogen->setSelectedInstrumentNumber( nStrip );
+		pHydrogen->getAudioEngine()->setSelectedInstrumentNumber( nStrip );
 	}
 	
 	Song *pSong = pHydrogen->getSong();
@@ -212,7 +212,7 @@ void CoreActionController::setStripPan( int nStrip, float fPanValue, bool bSelec
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( bSelectStrip ) {
-		pHydrogen->setSelectedInstrumentNumber( nStrip );
+		pHydrogen->getAudioEngine()->setSelectedInstrumentNumber( nStrip );
 	}
 	
 	Song *pSong = pHydrogen->getSong();
@@ -242,7 +242,7 @@ void CoreActionController::handleOutgoingControlChange(int param, int value)
 {
 	Preferences *pPref = Preferences::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	MidiOutput *pMidiDriver = pHydrogen->getMidiOutput();
+	MidiOutput *pMidiDriver = pHydrogen->getAudioEngine()->getMidiOutput();
 	
 	if(	pMidiDriver 
 		&& pPref->m_bEnableMidiFeedback 
@@ -302,7 +302,7 @@ bool CoreActionController::newSong( const QString& songPath ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
 
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() == STATE_PLAYING ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
 		pHydrogen->sequencer_stop();
@@ -349,7 +349,7 @@ bool CoreActionController::openSong (const QString& songPath ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
  
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() == STATE_PLAYING ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
 		pHydrogen->sequencer_stop();

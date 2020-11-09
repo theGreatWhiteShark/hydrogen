@@ -406,7 +406,7 @@ void Sample::apply_rubberband( const Rubberband& rb )
 	//if( __rubberband == rb ) return;
 	if( !rb.use ) return;
 	// compute rubberband options
-	double output_duration = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * rb.divider;
+	double output_duration = 60.0 / Hydrogen::get_instance()->getAudioEngine()->getNewBpmJTM() * rb.divider;
 	double time_ratio = output_duration / get_sample_duration();
 	RubberBand::RubberBandStretcher::Options options = compute_rubberband_options( rb );
 	double pitch_scale = compute_pitch_scale( rb );
@@ -533,7 +533,7 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 
 		unsigned rubberoutframes = 0;
 		double ratio = 1.0;
-		double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * rb.divider/*beats*/;
+		double durationtime = 60.0 / Hydrogen::get_instance()->getAudioEngine()->getNewBpmJTM() * rb.divider/*beats*/;
 		double induration = get_sample_duration();
 		if ( induration != 0.0 ) ratio = durationtime / induration;
 

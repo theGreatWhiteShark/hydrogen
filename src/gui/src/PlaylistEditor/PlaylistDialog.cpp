@@ -752,7 +752,7 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 			return;
 		}
 
-		if ( pEngine->getState() == STATE_PLAYING ){
+		if ( pEngine->getAudioEngine()->getState() == STATE_PLAYING ){
 			pEngine->sequencer_stop();
 		}
 
@@ -768,7 +768,7 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 		Playlist::get_instance()->setActiveSongNumber( index );
 
 		pH2App->setSong ( pSong );
-		pEngine->setSelectedPatternNumber ( 0 );
+		pEngine->getAudioEngine()->setSelectedPatternNumber ( 0 );
 
 		pEngine->sequencer_play();
 	}else
@@ -790,14 +790,14 @@ void PlaylistDialog::ffWDBtnClicked( Button* ref)
 {
 	UNUSED( ref );
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getAudioEngine()->getPatternPos() + 1 );
 }
 
 void PlaylistDialog::rewindBtnClicked( Button* ref )
 {
 	UNUSED( ref );
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getAudioEngine()->getPatternPos() - 1 );
 }
 
 void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
@@ -818,7 +818,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
-	if ( pEngine->getState() == STATE_PLAYING ){
+	if ( pEngine->getAudioEngine()->getState() == STATE_PLAYING ){
 		pEngine->sequencer_stop();
 	}
 
@@ -834,7 +834,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	}
 
 	pH2App->setSong ( pSong );
-	pEngine->setSelectedPatternNumber ( 0 );
+	pEngine->getAudioEngine()->setSelectedPatternNumber ( 0 );
 
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
 	pH2App->setStatusBarMessage( tr( "Playlist: set song no. %1" ).arg( index +1 ), 5000 );

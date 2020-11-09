@@ -524,7 +524,7 @@ void PlayerControl::updatePlayerControl()
 	m_pShowMixerBtn->setPressed( pH2App->getMixer()->isVisible() );
 	m_pShowInstrumentRackBtn->setPressed( pH2App->getInstrumentRack()->isVisible() );
 
-	int state = m_pEngine->getState();
+	int state = m_pEngine->getAudioEngine()->getState();
 	if (state == STATE_PLAYING ) {
 		m_pPlayBtn->setPressed(true);
 	}
@@ -680,7 +680,7 @@ void PlayerControl::updatePlayerControl()
 
 /// Toggle record mode
 void PlayerControl::recBtnClicked(Button* ref) {
-	if ( m_pEngine->getState() != STATE_PLAYING ) {
+	if ( m_pEngine->getAudioEngine()->getState() != STATE_PLAYING ) {
 		if (ref->isPressed()) {
 			Preferences::get_instance()->setRecordEvents(true);
 			(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Record midi events = On" ), 2000 );
@@ -996,7 +996,7 @@ void PlayerControl::FFWDBtnClicked( Button* )
 	WARNINGLOG( "relocate via button press" );
 
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getAudioEngine()->getPatternPos() + 1 );
 }
 
 
@@ -1006,7 +1006,7 @@ void PlayerControl::RewindBtnClicked( Button* )
 	WARNINGLOG( "relocate via button press" );
 	
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getAudioEngine()->getPatternPos() - 1 );
 }
 
 

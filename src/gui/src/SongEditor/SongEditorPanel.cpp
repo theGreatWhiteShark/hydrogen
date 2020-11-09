@@ -425,7 +425,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 	Song *pSong = Hydrogen::get_instance()->getSong();
 
 	if ( Preferences::get_instance()->m_bFollowPlayhead && pSong->get_mode() == Song::SONG_MODE) {
-		if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
+		if ( Hydrogen::get_instance()->getAudioEngine()->getState() != STATE_PLAYING ) {
 			return;
 		}
 
@@ -433,7 +433,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 		int x = -pos.x();
 		int w = m_pPositionRulerScrollView->viewport()->width();
 
-		int nPlayHeadPosition = Hydrogen::get_instance()->getPatternPos() * m_pSongEditor->getGridWidth();
+		int nPlayHeadPosition = Hydrogen::get_instance()->getAudioEngine()->getPatternPos() * m_pSongEditor->getGridWidth();
 
 		int value = m_pEditorScrollView->horizontalScrollBar()->value();
 		if ( nPlayHeadPosition > ( x + w - 50 ) ) {
@@ -564,7 +564,7 @@ void SongEditorPanel::newPatBtnClicked( Button* btn )
 
 	if ( pDialog->exec() == QDialog::Accepted ) {
 		SE_insertPatternAction* pAction =
-				new SE_insertPatternAction( pEngine->getSelectedPatternNumber() + 1, new Pattern( pNewPattern->get_name() , pNewPattern->get_info(), pNewPattern->get_category() ) );
+				new SE_insertPatternAction( pEngine->getAudioEngine()->getSelectedPatternNumber() + 1, new Pattern( pNewPattern->get_name() , pNewPattern->get_info(), pNewPattern->get_category() ) );
 		HydrogenApp::get_instance()->m_pUndoStack->push(  pAction );
 	}
 
@@ -580,7 +580,7 @@ void SongEditorPanel::insertPattern( int idx, Pattern* pPattern )
 	PatternList *pPatternList = pSong->get_pattern_list();
 
 	pPatternList->insert( idx, pPattern );
-	pEngine->setSelectedPatternNumber( idx );
+	pEngine->getAudioEngine()->setSelectedPatternNumber( idx );
 	pSong->set_is_modified( true );
 	updateAll();
 }
@@ -592,8 +592,8 @@ void SongEditorPanel::deletePattern( int idx )
 	PatternList *pPatternList = pSong->get_pattern_list();
 	H2Core::Pattern *pPattern = pPatternList->get( idx );
 	
-	if( idx == 	pEngine->getSelectedPatternNumber() ) {
-		pEngine->setSelectedPatternNumber( idx -1 );
+	if( idx == 	pEngine->getAudioEngine()->getSelectedPatternNumber() ) {
+		pEngine->getAudioEngine()->setSelectedPatternNumber( idx -1 );
 	}
 	
 	pPatternList->del( pPattern );
@@ -610,8 +610,8 @@ void SongEditorPanel::upBtnClicked( Button* btn )
 	UNUSED( btn );
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
-	if( pEngine->getSelectedPatternNumber() < 0 || !pEngine->getSelectedPatternNumber() ) return;
-	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
+	if( pEngine->getAudioEngine()->getSelectedPatternNumber() < 0 || !pEngine->getAudioEngine()->getSelectedPatternNumber() ) return;
+	int nSelectedPatternPos = pEngine->getAudioEngine()->getSelectedPatternNumber();
 
 	SE_movePatternListItemAction *pAction = new SE_movePatternListItemAction( nSelectedPatternPos, nSelectedPatternPos -1 ) ;
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
@@ -629,11 +629,11 @@ void SongEditorPanel::downBtnClicked( Button* btn )
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
 
-	if( pEngine->getSelectedPatternNumber() +1 >=  pPatternList->size() ) { 
+	if( pEngine->getAudioEngine()->getSelectedPatternNumber() +1 >=  pPatternList->size() ) { 
 		return;
 	}
 	
-	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
+	int nSelectedPatternPos = pEngine->getAudioEngine()->getSelectedPatternNumber();
 
 	SE_movePatternListItemAction *pAction = new SE_movePatternListItemAction( nSelectedPatternPos, nSelectedPatternPos +1 ) ;
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
@@ -692,7 +692,7 @@ void SongEditorPanel::resyncExternalScrollBar()
 	m_pVScrollBar->setValue( m_pEditorScrollView->verticalScrollBar()->value() );
 
 	// Make sure currently selected pattern is visible.
-	m_pPatternListScrollView->ensureVisible( 0, (Hydrogen::get_instance()->getSelectedPatternNumber()
+	m_pPatternListScrollView->ensureVisible( 0, (Hydrogen::get_instance()->getAudioEngine()->getSelectedPatternNumber()
 												 * nGridHeight + nGridHeight/2 ),
 											 0, m_pPatternList->getGridHeight() );
 }
@@ -824,7 +824,7 @@ void SongEditorPanel::mutePlaybackTrackBtnPressed( Button* pBtn )
 
 void SongEditorPanel::editPlaybackTrackBtnPressed( Button* pBtn )
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 	
@@ -859,7 +859,7 @@ void SongEditorPanel::modeActionBtnPressed( )
 	} else {
 		m_pModeActionBtn->setToolTip( tr( "single pattern mode") );
 	}
-	Hydrogen::get_instance()->togglePlaysSelected();
+	Hydrogen::get_instance()->getAudioEngine()->togglePlaysSelected();
 	updateAll();
 }
 

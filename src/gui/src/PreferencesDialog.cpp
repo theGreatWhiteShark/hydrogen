@@ -259,8 +259,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// list midi input ports
 	midiPortComboBox->clear();
 	midiPortComboBox->addItem( "None" );
-	if ( Hydrogen::get_instance()->getMidiInput() ) {
-		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiInput()->getOutputPortList();
+	if ( Hydrogen::get_instance()->getAudioEngine()->getMidiInput() ) {
+		std::vector<QString> midiOutList = Hydrogen::get_instance()->getAudioEngine()->getMidiInput()->getOutputPortList();
 
 		if ( midiOutList.size() != 0 ) {
 			midiPortComboBox->setEnabled( true );
@@ -279,8 +279,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// list midi output ports
 	midiOutportComboBox->clear();
 	midiOutportComboBox->addItem( "None" );
-	if ( Hydrogen::get_instance()->getMidiOutput() ) {
-		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiOutput()->getInputPortList();
+	if ( Hydrogen::get_instance()->getAudioEngine()->getMidiOutput() ) {
+		std::vector<QString> midiOutList = Hydrogen::get_instance()->getAudioEngine()->getMidiOutput()->getInputPortList();
 
 		if ( midiOutList.size() != 0 ) {
 			midiOutportComboBox->setEnabled( true );

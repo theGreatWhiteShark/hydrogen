@@ -172,7 +172,7 @@ void SampleEditor::getAllFrameInfos()
 	
 	if (pSong != nullptr) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
-		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		int nInstr = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 		if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
 			nInstr = -1;
 		}
@@ -376,7 +376,7 @@ void SampleEditor::createNewLayer()
 		Song *pSong = Hydrogen::get_instance()->getSong();
 		if (pSong != nullptr) {
 			InstrumentList *pInstrList = pSong->get_instrument_list();
-			int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+			int nInstr = Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber();
 			if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
 				nInstr = -1;
 			}
@@ -520,7 +520,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	const int selectedLayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	Instrument *pInstr = pSong->get_instrument_list()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	Instrument *pInstr = pSong->get_instrument_list()->get( Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber() );
 
 	Note *pNote = new Note( pInstr, 0, pInstr->get_component( m_nSelectedComponent )->get_layer( selectedLayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
 	pNote->set_specific_compo_id( m_nSelectedComponent );
@@ -560,7 +560,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 
 	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	Instrument *pInstr = pSong->get_instrument_list()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	Instrument *pInstr = pSong->get_instrument_list()->get( Hydrogen::get_instance()->getAudioEngine()->getSelectedInstrumentNumber() );
 
 	/*
 	 *preview_instrument deletes the last used preview instrument, therefore we have to construct a temporary
@@ -826,7 +826,7 @@ void SampleEditor::valueChangedrubberComboBox( const QString  )
 void SampleEditor::checkRatioSettings()
 {
 	//calculate ratio
-	double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * __rubberband.divider;
+	double durationtime = 60.0 / Hydrogen::get_instance()->getAudioEngine()->getNewBpmJTM() * __rubberband.divider;
 	double induration = (double) m_nSlframes / (double) m_nSamplerate;
 	if (induration != 0.0) m_fRatio = durationtime / induration;
 

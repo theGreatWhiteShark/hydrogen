@@ -340,7 +340,7 @@ unsigned JackAudioDriver::getSampleRate()
 
 void JackAudioDriver::calculateFrameOffset(long long oldFrame)
 {
-	if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == STATE_PLAYING ) {
 		m_frameOffset = m_JackTransportPos.frame - m_transport.m_nFrames;
 	} else {
 		m_frameOffset = oldFrame - m_transport.m_nFrames;
@@ -418,7 +418,7 @@ void JackAudioDriver::updateTransportInfo()
 		
 		// Reset playback to the beginning of the pattern if Hydrogen
 		// is in pattern mode.
-		pHydrogen->resetPatternStartTick();
+		pHydrogen->getAudioEngine()->resetPatternStartTick();
 			
 		// There maybe was an offset introduced when passing a tempo
 		// marker.
@@ -434,7 +434,7 @@ void JackAudioDriver::updateTransportInfo()
 		if ( m_transport.m_fBPM != fBPM ) {
 			setBpm( fBPM );
 			pHydrogen->getSong()->__bpm = fBPM;
-			pHydrogen->setNewBpmJTM( fBPM );
+			pHydrogen->getAudioEngine()->setNewBpmJTM( fBPM );
 		}
 	} else {
 		// Checks for local changes in speed (introduced by the user

@@ -140,7 +140,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 
 		case MidiMessage::START: /* Start from position 0 */
 				INFOLOG( "START event" );
-				if ( pHydrogen->getState() != STATE_PLAYING ) {
+				if ( pHydrogen->getAudioEngine()->getState() != STATE_PLAYING ) {
 					pHydrogen->setPatternPos( 0 );
 					pHydrogen->setTimelineBpm();
 					pHydrogen->sequencer_play();
@@ -149,14 +149,14 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 
 		case MidiMessage::CONTINUE: /* Just start */
 				ERRORLOG( "CONTINUE event" );
-				if ( pHydrogen->getState() != STATE_PLAYING ) {
+				if ( pHydrogen->getAudioEngine()->getState() != STATE_PLAYING ) {
 					pHydrogen->sequencer_play();
 				}
 				break;
 
 		case MidiMessage::STOP: /* Stop in current position i.e. Pause */
 				INFOLOG( "STOP event" );
-				if ( pHydrogen->getState() == STATE_PLAYING ) {
+				if ( pHydrogen->getAudioEngine()->getState() == STATE_PLAYING ) {
 					pHydrogen->sequencer_stop();
 				}
 				break;
@@ -245,7 +245,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	if ( bPatternSelect ) {
 		int patternNumber = nNote - 36;
 		//INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
-		pEngine->sequencer_setNextPattern( patternNumber );
+		pEngine->getAudioEngine()->sequencer_setNextPattern( patternNumber );
 
 	} else {
 		static const float fPan_L = 0.5f;
@@ -256,8 +256,8 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		Instrument *pInstr = nullptr;
 		
 		if ( Preferences::get_instance()->__playselectedinstrument ){
-			nInstrument = pEngine->getSelectedInstrumentNumber();
-			pInstr= pInstrList->get( pEngine->getSelectedInstrumentNumber());
+			nInstrument = pEngine->getAudioEngine()->getSelectedInstrumentNumber();
+			pInstr= pInstrList->get( pEngine->getAudioEngine()->getSelectedInstrumentNumber());
 		}
 		else if(Preferences::get_instance()->m_bMidiFixedMapping ){
 			pInstr = pInstrList->findMidiNote( nNote );
@@ -342,8 +342,8 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	Instrument *pInstr = nullptr;
 
 	if ( Preferences::get_instance()->__playselectedinstrument ){
-		nInstrument = pEngine->getSelectedInstrumentNumber();
-		pInstr = pInstrList->get( pEngine->getSelectedInstrumentNumber());
+		nInstrument = pEngine->getAudioEngine()->getSelectedInstrumentNumber();
+		pInstr = pInstrList->get( pEngine->getAudioEngine()->getSelectedInstrumentNumber());
 	} else if( Preferences::get_instance()->m_bMidiFixedMapping ) {
 		pInstr = pInstrList->findMidiNote( nNote );
 
