@@ -43,7 +43,7 @@ class SimpleHTMLBrowser : public QDialog, public H2Core::Object
 			MANUAL
 		};
 
-		SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath, const QString& sFilename, SimpleHTMLBrowserType type );
+	SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath, const QString& sFilename, const QString& sCssFilename, SimpleHTMLBrowserType type );
 		~SimpleHTMLBrowser();
 
 	public slots:
@@ -60,6 +60,7 @@ class SimpleHTMLBrowser : public QDialog, public H2Core::Object
 
 		QString m_sDataPath;
 		QString m_sFilename;
+    	QString m_sCssFilename;
 
 		virtual void showEvent ( QShowEvent *ev );
 		virtual void resizeEvent( QResizeEvent *ev );

@@ -31,12 +31,13 @@
 
 const char* SimpleHTMLBrowser::__class_name = "SimpleHTMLBrowser";
 
-SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath, const QString& sFilename, SimpleHTMLBrowserType type )
+SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath, const QString& sFilename, const QString& sCssFilename, SimpleHTMLBrowserType type )
  : QDialog( pParent )
  , Object( __class_name )
  , m_type( type )
  , m_sDataPath( sDataPath )
  , m_sFilename( sFilename )
+ , m_sCssFilename( sCssFilename )
 {
 	if (m_type == MANUAL ) {
 		setWindowTitle( tr( "Manual" ) );
@@ -69,12 +70,25 @@ SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath
 	m_pBrowser = new QTextBrowser( this );
 	m_pBrowser->setReadOnly( true );
 	m_pBrowser->setSearchPaths( QStringList( m_sDataPath ) );
-	//m_pBrowser->setStyleSheet("background-color:#000000;");
+	m_pBrowser->setStyleSheet("background-color:#000000;");
 
 	QFile file( m_sFilename.toLocal8Bit() ); // Read the text from a file
 	if ( file.open( QIODevice::ReadOnly ) ) {
 		QTextStream stream( &file );
 		m_pBrowser->setHtml( stream.readAll() );
+		INFOLOG( QString( "Reading HTML version of the manual [%1]" ).arg( m_sFilename ) );
+	} else {
+		ERRORLOG( QString( "Unable to open HTML version of the manual [%1]" ).arg( m_sFilename ) );
+	}
+
+	QFile cssFile( m_sCssFilename.toLocal8Bit() ); // Read the text from a file
+	if ( cssFile.open( QIODevice::ReadOnly|QIODevice::Text ) ) {
+		QTextStream stream( &file );
+		m_pBrowser->setStyleSheet( stream.readAll() );
+		// cssFile.close();
+		INFOLOG( QString( "Reading CSS file [%1]" ).arg( m_sCssFilename ) );
+	} else {
+		ERRORLOG( QString( "Unable to open CSS file [%1]" ).arg( m_sCssFilename ) );
 	}
 
 	QRect rect( QGuiApplication::screens().first()->geometry() );
@@ -142,10 +156,10 @@ void SimpleHTMLBrowser::docIndex()
 {
 	INFOLOG( "[docIndex]" );
 
-	QFile file( m_sFilename ); // Read the text from a file
-	if ( file.open( QIODevice::ReadOnly ) ) {
-		QTextStream stream( &file );
-		m_pBrowser->setHtml( stream.readAll() );
-	}
+	// QFile file( m_sFilename ); // Read the text from a file
+	// if ( file.open( QIODevice::ReadOnly ) ) {
+	// 	QTextStream stream( &file );
+	// 	m_pBrowser->setHtml( stream.readAll() );
+	// }
 
 }

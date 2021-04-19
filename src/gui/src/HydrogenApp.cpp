@@ -283,8 +283,9 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// HELP BROWSER
 	QString sDocPath = H2Core::Filesystem::doc_dir();
-	QString sDocURI = sDocPath + "/manual.html";
-	m_pHelpBrowser = new SimpleHTMLBrowser( nullptr, sDocPath, sDocURI, SimpleHTMLBrowser::MANUAL );
+	QString sDocURI = sDocPath + "manual_en.html";
+	QString sCssURI = sDocPath + "res/docbook.css";
+	m_pHelpBrowser = new SimpleHTMLBrowser( nullptr, sDocPath, sDocURI, sCssURI, SimpleHTMLBrowser::MANUAL );
 
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA FX
