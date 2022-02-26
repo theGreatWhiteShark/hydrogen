@@ -112,6 +112,22 @@ private:
 	 */
 	bool m_bInItsOwnDialog;
 
+	/**
+	 * Retrieve the drumkit associated with the currently selected
+	 * item of the tree widget.
+	 */
+	Drumkit* getSelectedDrumkit() const;
+	/**
+	 * List of the same order as #__system_drumkit_info_list
+	 * containing the labels assigned to the drumkit tree items. Even
+	 * when adding " (system)" suffix or adding the corresponding
+	 * folder name " [GMRockKit_copy]" this allows for a reliable
+	 * one-to-one mapping of the current item to the associated
+	 * drumkit.
+	 */
+	QStringList m_systemDrumkitNames;
+	QStringList m_userDrumkitNames;
+
 	QString m_sMessageFailedPreDrumkitLoad;
 };
 

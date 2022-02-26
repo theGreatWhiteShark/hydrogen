@@ -183,11 +183,13 @@ void SoundLibraryPanel::updateDrumkitList()
 		delete __system_drumkit_info_list[i];
 	}
 	__system_drumkit_info_list.clear();
+	m_systemDrumkitNames.clear();
 
 	for (uint i = 0; i < __user_drumkit_info_list.size(); ++i ) {
 		delete __user_drumkit_info_list[i];
 	}
 	__user_drumkit_info_list.clear();
+	m_userDrumkitNames.clear();
 
 	// Constant offset used in determining whether text will overflow
 	// the width and is abbreviated and a tooltip should be added
@@ -198,13 +200,13 @@ void SoundLibraryPanel::updateDrumkitList()
 	//User drumkit list
 	// We first create the list of Drumkits and their names.
 	QStringList usr_dks = Filesystem::usr_drumkit_list();
-	QStringList userDrumkitNames;
+	QStringList rawUserDrumkitNameList;
 	for (int i = 0; i < usr_dks.size(); ++i) {
 		QString absPath = Filesystem::usr_drumkits_dir() + usr_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath, false );
 		if (pInfo) {
 			__user_drumkit_info_list.push_back( pInfo );
-			userDrumkitNames << pInfo->get_name();
+			rawUserDrumkitNameList << pInfo->get_name();
 		}
 	}
 
@@ -219,13 +221,14 @@ void SoundLibraryPanel::updateDrumkitList()
 		QString sDrumkitName;
 		// Check whether there are duplicates of the current name
 		// present in the list.
-		if ( userDrumkitNames.filter( pInfo->get_name() ).size() > 1 ) {
+		if ( rawUserDrumkitNameList.filter( pInfo->get_name() ).size() > 1 ) {
 			QDir drumkitDir( pInfo->get_path() );
 			sDrumkitName = QString( "%1 [%2]" )
 				.arg( pInfo->get_name() ).arg( drumkitDir.dirName() );
 		} else {
 			sDrumkitName = pInfo->get_name();
 		}
+		m_userDrumkitNames << sDrumkitName;
 		pDrumkitItem->setText( 0, sDrumkitName );
 		// If the resulting string is wider than the current width
 		// of the widget, we also add a tooltip displaying the
@@ -248,13 +251,13 @@ void SoundLibraryPanel::updateDrumkitList()
 
 	// System drumkit list
 	QStringList sys_dks = Filesystem::sys_drumkit_list();
-	QStringList systemDrumkitNames;
+	QStringList rawSystemDrumkitNameList;
 	for (int i = 0; i < sys_dks.size(); ++i) {
 		QString absPath = Filesystem::sys_drumkits_dir() + sys_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath, false );
 		if ( pInfo != nullptr ) {
 			__system_drumkit_info_list.push_back( pInfo );
-			systemDrumkitNames << pInfo->get_name();
+			rawSystemDrumkitNameList << pInfo->get_name();
 		}
 	}
 	
@@ -267,13 +270,14 @@ void SoundLibraryPanel::updateDrumkitList()
 		QString sDrumkitName;
 		// Check whether there are duplicates of the current name
 		// present in the list.
-		if ( systemDrumkitNames.filter( pInfo->get_name() ).size() > 1 ) {
+		if ( rawSystemDrumkitNameList.filter( pInfo->get_name() ).size() > 1 ) {
 			QDir drumkitDir( pInfo->get_path() );
 			sDrumkitName = QString( "%1 [%2]" )
 				.arg( pInfo->get_name() ).arg( drumkitDir.dirName() );
 		} else {
 			sDrumkitName = pInfo->get_name();
 		}
+		m_systemDrumkitNames << sDrumkitName;
 		pDrumkitItem->setText( 0, sDrumkitName );
 
 		// If the resulting string is wider than the current width
@@ -562,36 +566,36 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 	}
 }
 
-
-
-void SoundLibraryPanel::on_drumkitLoadAction()
-{
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+Drumkit* SoundLibraryPanel::getSelectedDrumkit() const {
+	// Sanity checks
+	if ( __system_drumkit_info_list.size() != m_systemDrumkitNames.size() ||
+		 __user_drumkit_info_list.size() != m_userDrumkitNames.size() ) {
+		ERRORLOG( "Drumkit list and associated name list got corrupted. Aborting" );
+		return nullptr;
+	}
 	
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 	// Whether we deal with a system or a user drumkit.
 	QString sDrumkitType = __sound_library_tree->currentItem()->parent()->text(0);
 
-	Drumkit *pDrumkitInfo = nullptr;
+	Drumkit* pDrumkit = nullptr;
 
 	// Find the drumkit in the list. If the drumkit was listed as a
 	// "System drumkit", it won't be searched in the user ones and
 	// vice versa.
 	if ( sDrumkitType == __system_drumkits_item->text(0) ) {
 		
-		for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
-			Drumkit *pInfo = __system_drumkit_info_list[i];
-			if ( pInfo->get_name() == sDrumkitName ) {
-				pDrumkitInfo = pInfo;
+		for ( int ii = 0; ii < __system_drumkit_info_list.size(); ii++ ) {
+			if ( m_systemDrumkitNames[ ii ] == sDrumkitName ) {
+				pDrumkit = __system_drumkit_info_list[ ii ];
 				break;
 			}
 		}
 	} else if ( sDrumkitType == __user_drumkits_item->text(0) ) {
 		
-		for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
-			Drumkit *pInfo = __user_drumkit_info_list[i];
-			if ( pInfo->get_name() == sDrumkitName ) {
-				pDrumkitInfo = pInfo;
+		for ( int ii = 0; ii < __user_drumkit_info_list.size(); ii++ ) {
+			if ( m_userDrumkitNames[ ii ] == sDrumkitName ) {
+				pDrumkit = __user_drumkit_info_list[ ii ];
 				break;
 			}
 		}
@@ -601,13 +605,33 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		return;
 	}
 	
-	if( !pDrumkitInfo ) {
-		ERRORLOG( QString( "Unable to find drumkit [%1]" ).arg( sDrumkitName ) );
+	if( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unable to find drumkit [%1] of type [%2]" )
+				  .arg( sDrumkitName ).arg( sDrumkitType ) );
+	}
+
+	return pDrumkit;
+}
+
+
+void SoundLibraryPanel::on_drumkitLoadAction()
+{
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set yet" );
 		return;
 	}
 
-	InstrumentList *pSongInstrList = pHydrogen->getSong()->getInstrumentList();
-	InstrumentList *pDrumkitInstrList = pDrumkitInfo->get_instruments();
+	auto pDrumkit = getSelectedDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "unable to load drumkit" );
+		return;
+	}
+
+	InstrumentList *pSongInstrList = pSong->getInstrumentList();
+	InstrumentList *pDrumkitInstrList = pDrumkit->get_instruments();
 
 	int oldCount = pSongInstrList->size();
 	int newCount = pDrumkitInstrList->size();
@@ -615,7 +639,8 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	bool conditionalLoad = false;
 	bool hasNotes = false;
 
-	INFOLOG("Old kit has " + QString::number( oldCount ) + " instruments, new one has " + QString::number( newCount ) );
+	INFOLOG("Old kit has " + QString::number( oldCount ) +
+			" instruments, new one has " + QString::number( newCount ) );
 
 	if ( newCount < oldCount )
 	{
@@ -670,11 +695,11 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		}
 	}
 
-	assert( pDrumkitInfo );
+	assert( pDrumkit );
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	pHydrogen->getCoreActionController()->loadDrumkit( pDrumkitInfo, conditionalLoad );
+	pHydrogen->getCoreActionController()->loadDrumkit( pDrumkit, conditionalLoad );
 
 	QApplication::restoreOverrideCursor();
 }
@@ -706,7 +731,7 @@ void SoundLibraryPanel::restore_background_color()
 
 void SoundLibraryPanel::change_background_color()
 {
-	QString sCurDrumkitName =  Hydrogen::get_instance()->getCurrentDrumkitName();
+	QString sCurrentDrumkitPath =  Hydrogen::get_instance()->getCurrentDrumkitName();
 
 	if ( Hydrogen::get_instance()->getCurrentDrumkitLookup() == Filesystem::Lookup::system ) {
 		for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
