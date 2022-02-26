@@ -45,6 +45,9 @@ class InstrumentRack : public QWidget, protected WidgetWithScalableFont<5, 6, 7>
 
 		SoundLibraryPanel* getSoundLibraryPanel() {	return m_pSoundLibraryPanel;	}
 
+	static constexpr int m_nFixedWidth = 290;
+	static constexpr int m_nFixedHeight = 405;
+
 	public slots:
 		void on_showSoundLibraryBtnClicked();
 		void on_showInstrumentEditorBtnClicked();

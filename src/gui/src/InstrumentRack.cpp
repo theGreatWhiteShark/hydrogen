@@ -38,7 +38,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	resize( 290, 405 );
+	resize( InstrumentRack::m_nFixedWidth, InstrumentRack::m_nFixedHeight );
 	setMinimumSize( width(), height() );
 	setFixedWidth( width() );
 
@@ -50,11 +50,11 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pTabButtonsPanel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
 	// instrument editor button
-	m_pShowInstrumentEditorBtn = new Button( pTabButtonsPanel, QSize( 145, 24 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getInstrumentButton(), false, QSize(), tr( "Show Instrument editor" ) );
+	m_pShowInstrumentEditorBtn = new Button( pTabButtonsPanel, QSize( width() / 2, 24 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getInstrumentButton(), false, QSize(), tr( "Show Instrument editor" ) );
 	connect( m_pShowInstrumentEditorBtn, SIGNAL( pressed() ), this, SLOT( on_showInstrumentEditorBtnClicked() ) );
 
 	// show sound library button
-	m_pShowSoundLibraryBtn = new Button( pTabButtonsPanel,QSize( 145, 24 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryButton(), false, QSize(), tr( "Show sound library" ) );
+	m_pShowSoundLibraryBtn = new Button( pTabButtonsPanel,QSize( width() / 2, 24 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryButton(), false, QSize(), tr( "Show sound library" ) );
 	connect( m_pShowSoundLibraryBtn, SIGNAL( pressed() ), this, SLOT( on_showSoundLibraryBtnClicked() ) );
 
 
@@ -72,7 +72,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	InstrumentEditorPanel::get_instance()->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
 	m_pSoundLibraryPanel = new SoundLibraryPanel( nullptr, false );
-
+		
 	// LAYOUT
 	QGridLayout *pGrid = new QGridLayout();
 	pGrid->setSpacing( 0 );
