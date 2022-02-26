@@ -189,44 +189,108 @@ void SoundLibraryPanel::updateDrumkitList()
 	}
 	__user_drumkit_info_list.clear();
 
+	// Constant offset used in determining whether text will overflow
+	// the width and is abbreviated and a tooltip should be added
+	// (this incorporates the indicator and its margins as well as the
+	// dots used for abbreviation)
+	int nWidthOffset = 65;
+
 	//User drumkit list
+	// We first create the list of Drumkits and their names.
 	QStringList usr_dks = Filesystem::usr_drumkit_list();
+	QStringList userDrumkitNames;
 	for (int i = 0; i < usr_dks.size(); ++i) {
 		QString absPath = Filesystem::usr_drumkits_dir() + usr_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath, false );
 		if (pInfo) {
 			__user_drumkit_info_list.push_back( pInfo );
-			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
-			pDrumkitItem->setText( 0, pInfo->get_name() );
-			if ( ! m_bInItsOwnDialog ) {
-				InstrumentList *pInstrList = pInfo->get_instruments();
-				for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
-					auto pInstr = pInstrList->get( nInstr );
-					QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
-					pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
-					pInstrumentItem->setToolTip( 0, pInstr->get_name() );
-				}
+			userDrumkitNames << pInfo->get_name();
+		}
+	}
+
+	// If the lists are complete, we build up the tree (in order to
+	// provide folder names for all duplicates).
+	for ( const auto& pInfo : __user_drumkit_info_list ) { 
+		QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
+
+		// In case the drumkit's is already present we add the
+		// corresponding folder name in brackets to make it
+		// unique.
+		QString sDrumkitName;
+		// Check whether there are duplicates of the current name
+		// present in the list.
+		if ( userDrumkitNames.filter( pInfo->get_name() ).size() > 1 ) {
+			QDir drumkitDir( pInfo->get_path() );
+			sDrumkitName = QString( "%1 [%2]" )
+				.arg( pInfo->get_name() ).arg( drumkitDir.dirName() );
+		} else {
+			sDrumkitName = pInfo->get_name();
+		}
+		pDrumkitItem->setText( 0, sDrumkitName );
+		// If the resulting string is wider than the current width
+		// of the widget, we also add a tooltip displaying the
+		// whole name.
+		if ( fontMetrics().size( Qt::TextSingleLine, sDrumkitName ).width() >
+			 InstrumentRack::m_nFixedWidth - nWidthOffset ) {
+			pDrumkitItem->setToolTip( 0, sDrumkitName );
+		}
+			
+		if ( ! m_bInItsOwnDialog ) {
+			InstrumentList *pInstrList = pInfo->get_instruments();
+			for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
+				auto pInstr = pInstrList->get( nInstr );
+				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
+				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
+				pInstrumentItem->setToolTip( 0, pInstr->get_name() );
 			}
 		}
 	}
 
-	//System drumkit list
+	// System drumkit list
 	QStringList sys_dks = Filesystem::sys_drumkit_list();
+	QStringList systemDrumkitNames;
 	for (int i = 0; i < sys_dks.size(); ++i) {
 		QString absPath = Filesystem::sys_drumkits_dir() + sys_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath, false );
-		if (pInfo) {
+		if ( pInfo != nullptr ) {
 			__system_drumkit_info_list.push_back( pInfo );
-			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
-			pDrumkitItem->setText( 0, pInfo->get_name() );
-			if ( ! m_bInItsOwnDialog ) {
-				InstrumentList *pInstrList = pInfo->get_instruments();
-				for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
-					auto pInstr = pInstrList->get( nInstr );
-					QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
-					pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
-					pInstrumentItem->setToolTip( 0, pInstr->get_name() );
-				}
+			systemDrumkitNames << pInfo->get_name();
+		}
+	}
+	
+	for ( const auto& pInfo : __system_drumkit_info_list ) { 
+		QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
+
+		// In case the drumkit's is already present we add the
+		// corresponding folder name in brackets to make it
+		// unique.
+		QString sDrumkitName;
+		// Check whether there are duplicates of the current name
+		// present in the list.
+		if ( systemDrumkitNames.filter( pInfo->get_name() ).size() > 1 ) {
+			QDir drumkitDir( pInfo->get_path() );
+			sDrumkitName = QString( "%1 [%2]" )
+				.arg( pInfo->get_name() ).arg( drumkitDir.dirName() );
+		} else {
+			sDrumkitName = pInfo->get_name();
+		}
+		pDrumkitItem->setText( 0, sDrumkitName );
+
+		// If the resulting string is wider than the current width
+		// of the widget, we also add a tooltip displaying the
+		// whole name.
+		if ( fontMetrics().size( Qt::TextSingleLine, sDrumkitName ).width() >
+			 InstrumentRack::m_nFixedWidth - nWidthOffset ) {
+			pDrumkitItem->setToolTip( 0, sDrumkitName );
+		}
+			
+		if ( ! m_bInItsOwnDialog ) {
+			InstrumentList *pInstrList = pInfo->get_instruments();
+			for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
+				auto pInstr = pInstrList->get( nInstr );
+				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
+				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
+				pInstrumentItem->setToolTip( 0, pInstr->get_name() );
 			}
 		}
 	}
