@@ -141,8 +141,12 @@ void* diskWriterDriver_thread( void* param )
 		return nullptr;
 	}
 
-
 	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE, &soundInfo );
+	if ( m_file != nullptr ) {
+		__DEBUGLOG( QString( "File %1 opened" ).arg( pDriver->m_sFilename ) );
+	} else {
+		__ERRORLOG( QString( "Unable to open file %1" ).arg( pDriver->m_sFilename ) );
+	}
 
 	float *pData = new float[ pDriver->m_nBufferSize * 2 ];	// always stereo
 
@@ -162,7 +166,7 @@ void* diskWriterDriver_thread( void* param )
 	float fTicksize = 0;
 	int nMaxNumberOfSilentFrames = 200;
 	for ( int patternPosition = 0; patternPosition < nColumns; ++patternPosition ) {
-		
+
 		PatternList *pColumn = ( *pPatternColumns )[ patternPosition ];
 		if ( pColumn->size() != 0 ) {
 			nPatternSize = pColumn->longest_pattern_length();
@@ -173,6 +177,11 @@ void* diskWriterDriver_thread( void* param )
 		fBpm = AudioEngine::getBpmAtColumn( patternPosition );
 		fTicksize = AudioEngine::computeTickSize( pDriver->m_nSampleRate, fBpm,
 												  pSong->getResolution() );
+
+		__DEBUGLOG( QString( "In column: %1 of size: %2, fBpm: %3, fTicksize: %4, bufferSize: %5" )
+					.arg( patternPosition ).arg( nPatternSize )
+					.arg( fBpm ).arg( fTicksize )
+					.arg( pDriver->m_nBufferSize ) );
 		
 		//here we have the pattern length in frames dependent from bpm and samplerate
 		int nPatternLengthInFrames = fTicksize * nPatternSize;
@@ -243,6 +252,10 @@ void* diskWriterDriver_thread( void* param )
 			} else {
 				nBufferWriteLength = nUsedBuffer;
 			}
+
+			__DEBUGLOG( QString( "nFrameNumber: %1, processing ret: %2, nUsedBuffer: %3, nBufferWriteLength: %4" )
+						.arg( nFrameNumber ).arg( ret ).arg( nUsedBuffer )
+						.arg( nBufferWriteLength ) );
 			
 			nFrameNumber += nBufferWriteLength;
 			
@@ -266,13 +279,15 @@ void* diskWriterDriver_thread( void* param )
 			
 			int res = sf_writef_float( m_file, pData, nBufferWriteLength );
 			if ( res != ( int )nBufferWriteLength ) {
-				__ERRORLOG( "Error during sf_write_float" );
+				__ERRORLOG( QString( "Error during sf_write_float: res: %1, nBufferWriteLength: %2" )
+							.arg( res ).arg( nBufferWriteLength ) );
 			}
 
 			// Sampler is still rendering notes put we seem to have
 			// reached the zero padding at the end of the
 			// corresponding samples.
 			if ( nSuccessiveZeros == nMaxNumberOfSilentFrames ) {
+				__DEBUGLOG( "zero padding" );
 				break;
 			}
 		}
