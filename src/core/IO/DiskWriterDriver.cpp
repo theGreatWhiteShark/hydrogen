@@ -146,6 +146,7 @@ void* diskWriterDriver_thread( void* param )
 		__DEBUGLOG( QString( "File %1 opened" ).arg( pDriver->m_sFilename ) );
 	} else {
 		__ERRORLOG( QString( "Unable to open file %1" ).arg( pDriver->m_sFilename ) );
+		__ERRORLOG( QString( sf_strerror( nullptr ) ) );
 	}
 
 	float *pData = new float[ pDriver->m_nBufferSize * 2 ];	// always stereo
