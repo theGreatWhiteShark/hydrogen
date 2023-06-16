@@ -301,10 +301,18 @@ void PortMidiDriver::open()
 			ERRORLOG( QString( "Error in Pt_Start: [%1]" ).arg( sError ) );
 		}
 
+		PmSysDepInfo* sysdepinfo;
+		static char dimem[sizeof(PmSysDepInfo) + sizeof(void *) * 4];
+        sysdepinfo = (PmSysDepInfo *) dimem;
+        sysdepinfo->structVersion = PM_SYSDEPINFO_VERS;
+        sysdepinfo->length = 1;
+		sysdepinfo->properties[0].key = pmKeyAlsaPortName;
+		sysdepinfo->properties[0].value = QString( "inininin" ).toLocal8Bit().data();
+
 		PmError err = Pm_OpenInput(
 								   &m_pMidiIn,
 								   nDeviceId,
-								   nullptr,
+								   sysdepinfo,
 								   nInputBufferSize,
 								   TIME_PROC,
 								   nullptr
@@ -327,10 +335,18 @@ void PortMidiDriver::open()
 
 	// Open output device if found
 	if ( nOutDeviceId >= 0 ) {
+		PmSysDepInfo* sysdepinfo;
+		static char dimem[sizeof(PmSysDepInfo) + sizeof(void *) * 4];
+        sysdepinfo = (PmSysDepInfo *) dimem;
+        sysdepinfo->structVersion = PM_SYSDEPINFO_VERS;
+        sysdepinfo->length = 1;
+		sysdepinfo->properties[0].key = pmKeyAlsaPortName;
+		sysdepinfo->properties[0].value = QString( "outotuouto" ).toLocal8Bit().data();
+		
 		PmError err = Pm_OpenOutput(
 									&m_pMidiOut,
 									nOutDeviceId,
-									nullptr,
+									sysdepinfo,
 									nInputBufferSize,
 									TIME_PROC,
 									nullptr,
