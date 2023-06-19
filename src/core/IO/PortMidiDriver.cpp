@@ -185,8 +185,6 @@ void PortMidiDriver::handleOutgoingControlChange( int param, int value, int chan
 
 void PortMidiDriver::open()
 {
-	INFOLOG( "[open]" );
-
 	int nInputBufferSize = 100;
 
 	int nDeviceId = -1;
@@ -226,21 +224,40 @@ void PortMidiDriver::open()
 		}
 	}
 
+	// Meta information required by PortMidi to allow external
+	// applications to subscribe to the created ports.
+	const char* clientName = "Hydrogen";
+	const char* portNameOut = "Midi-out";
+	const char* portNameIn = "Midi-in";
+
+	PmSysDepInfo* pmSysDepInfo;
+	// Make room for two parameters (* 4)
+	static char dimem[sizeof(PmSysDepInfo) + sizeof(void *) * 4];
+	pmSysDepInfo = (PmSysDepInfo *) dimem;
+	pmSysDepInfo->structVersion = PM_SYSDEPINFO_VERS;
+	pmSysDepInfo->length = 2;
+	pmSysDepInfo->properties[0].key = pmKeyAlsaClientName;
+	pmSysDepInfo->properties[0].value = clientName;
+	// This one is just a template. The actual port name will be
+	// assigned prior to port creation.
+	pmSysDepInfo->properties[1].key = pmKeyAlsaPortName;
+
 	// In case the user did not select any input or output device to
-	// connect to, we create virtual input or output devices. These
-	// will allow external applications to connect to Hydrogen
-	// themselves. In the code above only Hydrogen itself is able to
-	// establish a connection but can not be discovered externally.
+	// connect to, we create a virtual one. In ALSA a port needs to be
+	// opened in order to be used or be discovered by external
+	// applications. To do so, we connect to the virtual one ourselves.
 	//
 	// This feature is not supported on Windows (by PortMidi).
 #ifndef WIN32
 	if ( nDeviceId == -1 ) {
 #ifdef __APPLE__
 		// macOS
-		nDeviceId = Pm_CreateVirtualInput( "Hydrogen MIDI-in", "CoreMIDI", NULL );
+		pmSysDepInfo->properties[1].value = portNameIn;
+		nDeviceId = Pm_CreateVirtualInput( portNameIn, "CoreMIDI", pmSysDepInfo );
 #else
 		// Linux
-		nDeviceId = Pm_CreateVirtualInput( "Hydrogen MIDI-in", "ALSA", NULL );
+		pmSysDepInfo->properties[1].value = portNameIn;
+		nDeviceId = Pm_CreateVirtualInput( portNameIn, "ALSA", pmSysDepInfo );
 #endif
 		if ( nDeviceId < 0 ) {
 			ERRORLOG( QString( "Unable to create virtual input: [%1]" )
@@ -257,10 +274,12 @@ void PortMidiDriver::open()
 	if ( nOutDeviceId == -1 ) {
 #ifdef __APPLE__
 		// macOS
-		nOutDeviceId = Pm_CreateVirtualOutput( "Hydrogen MIDI-out", "CoreMIDI", NULL );
+		pmSysDepInfo->properties[1].value = portNameOut;
+		nOutDeviceId = Pm_CreateVirtualOutput( portNameOut, "CoreMIDI", pmSysDepInfo );
 #else
 		// Linux
-		nOutDeviceId = Pm_CreateVirtualOutput( "Hydrogen MIDI-out", "ALSA", NULL );
+		pmSysDepInfo->properties[1].value = portNameOut;
+		nOutDeviceId = Pm_CreateVirtualOutput( portNameOut, "ALSA", pmSysDepInfo );
 #endif
 		if ( nOutDeviceId < 0 ) {
 			ERRORLOG( QString( "Unable to create virtual output: [%1]" )
@@ -301,18 +320,11 @@ void PortMidiDriver::open()
 			ERRORLOG( QString( "Error in Pt_Start: [%1]" ).arg( sError ) );
 		}
 
-		PmSysDepInfo* sysdepinfo;
-		static char dimem[sizeof(PmSysDepInfo) + sizeof(void *) * 4];
-        sysdepinfo = (PmSysDepInfo *) dimem;
-        sysdepinfo->structVersion = PM_SYSDEPINFO_VERS;
-        sysdepinfo->length = 1;
-		sysdepinfo->properties[0].key = pmKeyAlsaPortName;
-		sysdepinfo->properties[0].value = QString( "inininin" ).toLocal8Bit().data();
-
+		pmSysDepInfo->properties[1].value = portNameIn;
 		PmError err = Pm_OpenInput(
 								   &m_pMidiIn,
 								   nDeviceId,
-								   sysdepinfo,
+								   pmSysDepInfo,
 								   nInputBufferSize,
 								   TIME_PROC,
 								   nullptr
@@ -335,18 +347,12 @@ void PortMidiDriver::open()
 
 	// Open output device if found
 	if ( nOutDeviceId >= 0 ) {
-		PmSysDepInfo* sysdepinfo;
-		static char dimem[sizeof(PmSysDepInfo) + sizeof(void *) * 4];
-        sysdepinfo = (PmSysDepInfo *) dimem;
-        sysdepinfo->structVersion = PM_SYSDEPINFO_VERS;
-        sysdepinfo->length = 1;
-		sysdepinfo->properties[0].key = pmKeyAlsaPortName;
-		sysdepinfo->properties[0].value = QString( "outotuouto" ).toLocal8Bit().data();
-		
+
+		pmSysDepInfo->properties[1].value = portNameOut;
 		PmError err = Pm_OpenOutput(
 									&m_pMidiOut,
 									nOutDeviceId,
-									sysdepinfo,
+									pmSysDepInfo,
 									nInputBufferSize,
 									TIME_PROC,
 									nullptr,
