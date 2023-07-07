@@ -105,14 +105,14 @@ for:
       mkdir -p $cdir/ccache
       ln -s $cdir/ccache $HOME/.ccache
 
-      if [ -d $cdir ] && [ -f $cache ]; then
-        echo "=== Unpacking cached /var $cache ==="
-        (
-          cd /
-          sudo tar xf $cache
-        )
-        echo "done"
-      else
+      # if [ -d $cdir ] && [ -f $cache ]; then
+      #   echo "=== Unpacking cached /var $cache ==="
+      #   (
+      #     cd /
+      #     sudo tar xf $cache
+      #   )
+      #   echo "done"
+      # else
         echo "=== Building dependencies ==="
 
         mkdir -p $cdir
@@ -133,7 +133,7 @@ for:
           du -h $cache
 
         ) 2>&1 | sed 's/^/CACHE: /' &
-      fi
+      # fi
 
     build_script: |-
       git submodule init && git submodule update
