@@ -89,6 +89,8 @@ option(WANT_APPIMAGE "Build Linux AppImage" OFF)
 
 option(WANT_CPPUNIT         "Include CppUnit test suite" ON)
 
+option(WANT_DOCUMENTATION "Build and install the manual and tutorial" ON)
+
 include(Sanitizers)
 include(StatusSupportOptions)
 
@@ -267,8 +269,8 @@ else()
 endif()
 check_library_exists(jack jack_port_rename "" HAVE_JACK_PORT_RENAME)
 if(APPLE)
-    FIND_LIBRARY(AUDIOUNIT_LIBRARY AudioUnit)
-    FIND_LIBRARY(CORESERVICES_LIBRARY CoreServices)
+    find_library(AUDIOUNIT_LIBRARY AudioUnit)
+    find_library(CORESERVICES_LIBRARY CoreServices)
     find_helper(COREAUDIO CoreAudio-2.0 coreaudio.h coreaudio)
     find_helper(COREMIDI CoreMidi coremidi.h coremidi)
 endif()
@@ -285,6 +287,17 @@ find_helper(LRDF lrdf lrdf.h lrdf)
 find_helper(RUBBERBAND rubberband rubberband/RubberBandStretcher.h rubberband)
 find_helper(CPPUNIT cppunit cppunit/TestCase.h cppunit)
 
+# Check for the presence of all packages required in the doc toolchain
+find_program(ITSTOOL "itstool")
+compute_program_flags(ITSTOOL WANT_DOCUMENTATION)
+find_program(XMLTO "xmlto")
+compute_program_flags(XMLTO WANT_DOCUMENTATION)
+find_program(XMLLINT "xmllint")
+compute_program_flags(XMLLINT WANT_DOCUMENTATION)
+find_program(MSGMERGE "msgmerge")
+compute_program_flags(MSGMERGE WANT_DOCUMENTATION)
+find_program(MSGFMT "msgfmt")
+compute_program_flags(MSGFMT WANT_DOCUMENTATION)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -325,10 +338,10 @@ endif()
 
 # RUBBERBAND information
 set(LIBRUBBERBAND_MSG "The use of librubberband2 is marked as experimental.
-*				 Because the current implementation produce wrong timing!
-*				 So long this bug isn't solved, please disable this option.
-*				 If rubberband-cli is installed, the hydrogen rubberband-function
-*				 will work properly as expected.")
+ 				 Because the current implementation produce wrong timing!
+ 				 So long this bug isn't solved, please disable this option.
+ 				 If rubberband-cli is installed, the hydrogen rubberband-function
+ 				 will work properly as expected.")
 
 if(WIN32)
     set(CMAKE_COLOR_MAKEFILE OFF)
@@ -355,20 +368,22 @@ color_message("${cyan}Installation Summary${reset}
 * macOS bundle                 : ${H2CORE_HAVE_BUNDLE}
 * Windows fat build            : ${H2CORE_HAVE_FAT_BUILD}
 * AppImage build               : ${H2CORE_HAVE_APPIMAGE}
-* Dynamic JACK support check   : ${H2CORE_HAVE_DYNAMIC_JACK_CHECK}\n"
+* Dynamic JACK support check   : ${H2CORE_HAVE_DYNAMIC_JACK_CHECK}
+* Build manual and tutorial    : ${WANT_DOCUMENTATION}\n"
 )
 
-color_message("${cyan}Main librarires${reset}")
-color_message("* ${purple}libQt${reset}                        : ${Qt5Widgets_VERSION}")
-color_message("* ${purple}libsndfile${reset}                   : ${LIBSNDFILE_STATUS}
-*                                ${LIBSNDFILE_MSG}
+color_message("${cyan}Main librarires${reset}
+-----------------------------------------
+* ${purple}libQt${reset}                        : ${Qt5Widgets_VERSION}
+* ${purple}libsndfile${reset}                   : ${LIBSNDFILE_STATUS}
+                                 ${LIBSNDFILE_MSG}
 * ${purple}libtar${reset}                       : ${LIBTAR_STATUS}
 * ${purple}libarchive${reset}                   : ${LIBARCHIVE_STATUS}
 * ${purple}ladspa${reset}                       : ${LADSPA_STATUS}\n"
 )
 
 color_message("${cyan}Supported audio interfaces${reset}
---------------------------
+-----------------------------------------
 * ${purple}ALSA${reset}                         : ${ALSA_STATUS}
 * ${purple}OSS${reset}                          : ${OSS_STATUS}
 * ${purple}JACK${reset}                         : ${JACK_STATUS}
@@ -380,12 +395,21 @@ color_message("${cyan}Supported audio interfaces${reset}
 * ${purple}PulseAudio${reset}                   : ${PULSEAUDIO_STATUS}\n"
 )
 
+color_message("${cyan}Documentation toolchain:${reset}
+-----------------------------------------
+* ${purple}itstool${reset}                      : ${ITSTOOL_STATUS}
+* ${purple}xmlto${reset}                        : ${XMLTO_STATUS}
+* ${purple}xmllint${reset}                      : ${XMLLINT_STATUS}
+* ${purple}msgmerge${reset}                     : ${MSGMERGE_STATUS}
+* ${purple}msgfmt${reset}                       : ${MSGFMT_STATUS}\n"
+)
+
 color_message("${cyan}Useful extensions${reset}
 -----------------------------------------
 * ${purple}LASH${reset}                         : ${LASH_STATUS}
 * ${purple}LRDF${reset}                         : ${LRDF_STATUS}
 * ${purple}RUBBERBAND${reset}                   : ${RUBBERBAND_STATUS}
-*                                ${LIBRUBBERBAND_MSG}\n"
+                                 ${LIBRUBBERBAND_MSG}\n"
 )
 
 if(WANT_DEBUG)
@@ -436,11 +460,15 @@ add_subdirectory(data/i18n)
 add_subdirectory(src/cli)
 add_subdirectory(src/player)
 add_subdirectory(src/gui)
-if(EXISTS ${CMAKE_SOURCE_DIR}/data/doc/CMakeLists.txt)
-	add_subdirectory(data/doc)
-else()
-    color_message("${red}ERROR while building documentation${reset}:\n\tSubmodule not initialized.${reset} Please run\n\t`git submodule update --init --recursive` first.\n")
+
+if(WANT_DOCUMENTATION)
+    if(EXISTS ${CMAKE_SOURCE_DIR}/data/doc/CMakeLists.txt)
+	    add_subdirectory(data/doc)
+    else()
+        color_message("${red}ERROR while building documentation${reset}:\n\tSubmodule not initialized.${reset} Please run\n\t`git submodule update --init --recursive` first.\n")
+    endif()
 endif()
+
 install(DIRECTORY data DESTINATION ${H2_DATA_PATH} PATTERN ".git" EXCLUDE PATTERN "i18n" EXCLUDE PATTERN doc EXCLUDE)
 if(NOT MINGW AND NOT APPLE)
 	install(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.metainfo.xml DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/metainfo")
