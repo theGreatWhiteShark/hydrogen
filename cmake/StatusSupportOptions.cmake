@@ -62,7 +62,7 @@ macro(COMPUTE_PKGS_FLAGS prefix)
 endmacro()
 
 macro(COMPUTE_PROGRAM_FLAGS PREFIX REQUIRED)
-    if(${PREFIX}-NOTFOUND)
+    if(${${PREFIX}} MATCHES ${PREFIX}-NOTFOUND)
         if(${REQUIRED})
             set(${PREFIX}_STATUS "${_escape}[1;31m-- not found${_escape}[0m but desired ...")
         else()
