@@ -15,6 +15,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			adding, deleting, and renaming drumkit components can now be undone.
 		- Pattern and drumkit properties can be edited by clicking the corresponding
 			name in the left column of the Pattern Editor.
+		- MIDI and OSC actions `LOAD_PREV_DRUMKIT` and `LOAD_NEXT_DRUMKIT` which can
+			be used to cycle through kits of the SoundLibrary.
 	* Changed
 		- Drumkit handling was reworked. Each song will now hold a proper drumkit.
 			Tweaking its name, instruments etc. does not affect the kits in the Sound

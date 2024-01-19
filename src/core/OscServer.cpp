@@ -999,16 +999,32 @@ void OscServer::LOAD_DRUMKIT_Handler(lo_arg **argv, int argc) {
 		ERRORLOG( "No song set yet" );
 		return;
 	}
-	
+
 	auto pController = pHydrogen->getCoreActionController();
 
 	bool bConditionalLoad = true;
 	if ( argc > 1 ) {
 		bConditionalLoad = argv[1]->f == 0 ? false : true;
 	}
-	
+
 	pController->setDrumkit( QString::fromUtf8( &argv[0]->s ),
 							 bConditionalLoad );
+}
+
+void OscServer::LOAD_NEXT_DRUMKIT_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+
+	std::shared_ptr<Action> pAction =
+		std::make_shared<Action>("LOAD_NEXT_DRUMKIT");
+	MidiActionManager::get_instance()->handleAction( pAction );
+}
+
+void OscServer::LOAD_PREV_DRUMKIT_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+
+	std::shared_ptr<Action> pAction =
+		std::make_shared<Action>("LOAD_PREV_DRUMKIT");
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::UPGRADE_DRUMKIT_Handler(lo_arg **argv, int argc) {
@@ -1338,6 +1354,10 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/SONG_EDITOR_TOGGLE_GRID_CELL", "ff", SONG_EDITOR_TOGGLE_GRID_CELL_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "s", LOAD_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "sf", LOAD_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOAD_PREV_DRUMKIT", "", LOAD_PREV_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOAD_PREV_DRUMKIT", "f", LOAD_PREV_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOAD_NEXT_DRUMKIT", "", LOAD_NEXT_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOAD_NEXT_DRUMKIT", "f", LOAD_NEXT_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/UPGRADE_DRUMKIT", "s", UPGRADE_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/UPGRADE_DRUMKIT", "ss", UPGRADE_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/VALIDATE_DRUMKIT", "s", VALIDATE_DRUMKIT_Handler);
