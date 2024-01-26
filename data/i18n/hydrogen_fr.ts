@@ -2919,6 +2919,13 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
 </context>
 <context>
+    <name>NewTypeDialog</name>
+    <message>
+        <source>Add a new instrument type</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>NotePropertiesRuler</name>
     <message>
         <source>B</source>
