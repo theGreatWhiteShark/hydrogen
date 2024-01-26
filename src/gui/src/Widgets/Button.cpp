@@ -54,8 +54,10 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	if ( size.isNull() || size.isEmpty() ) {
 		m_size = sizeHint();
 	}
+	else {
+		setFixedSize( m_size );
+	}
 	adjustSize();
-	setFixedSize( m_size );
 	resize( m_size );
 
 	if ( ! sIcon.isEmpty() ) {
