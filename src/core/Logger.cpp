@@ -27,6 +27,8 @@
 #include <chrono>
 #include <thread>
 #include <QtCore/QDir>
+#include <QFile>
+#include <QTextStream>
 
 #ifdef WIN32
 #include <windows.h>
@@ -42,8 +44,10 @@ thread_local QString *Logger::pCrashContext = nullptr;
 pthread_t loggerThread;
 
 void* loggerThread_func( void* param ) {
-	if ( param == nullptr ) return nullptr;
-	Logger* logger = ( Logger* )param;
+	if ( param == nullptr ) {
+		return nullptr;
+	}
+	Logger* pLogger = ( Logger* )param;
 #ifdef WIN32
 #  ifdef H2CORE_HAVE_DEBUG
 	::AllocConsole();
@@ -51,50 +55,61 @@ void* loggerThread_func( void* param ) {
 	freopen( "CONOUT$", "wt", stdout );
 #  endif
 #endif
-	FILE* log_file = nullptr;
-	if ( logger->__use_file ) {
-		log_file = fopen( logger->m_sLogFilePath.toLocal8Bit().data(), "w" );
-		if ( ! log_file ) {
-			fprintf( stderr, "%s",
-					 QString( "Error: can't open log file [%1] for writing...\n" )
-					 .arg( logger->m_sLogFilePath ).toLocal8Bit().data() );
+
+	QTextStream stdoutStream( stdout );
+	QTextStream stderrStream( stderr );
+
+	bool bUseLogFile = pLogger->__use_file;
+	QFile logFile( pLogger->m_sLogFilePath );
+	QTextStream logFileStream = QTextStream();
+	if ( bUseLogFile ) {
+		if ( logFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
+			logFileStream.setDevice( &logFile );
+		}
+		else {
+			stderrStream <<
+				QString( "Error: can't open log file [%1] for writing...\n" )
+				.arg( pLogger->m_sLogFilePath );
+			stderrStream.flush();
+			bUseLogFile = false;
 		}
 	}
-	Logger::queue_t* queue = &logger->__msg_queue;
+	Logger::queue_t* queue = &pLogger->__msg_queue;
 	Logger::queue_t::iterator it, last;
 
-	while ( logger->__running ) {
-		pthread_mutex_lock( &logger->__mutex );
-		pthread_cond_wait( &logger->__messages_available, &logger->__mutex );
-		pthread_mutex_unlock( &logger->__mutex );
-		if( !queue->empty() ) {
-			for( it = last = queue->begin() ; it != queue->end() ; ++it ) {
+	while ( pLogger->__running ) {
+		pthread_mutex_lock( &pLogger->__mutex );
+		pthread_cond_wait( &pLogger->__messages_available, &pLogger->__mutex );
+		pthread_mutex_unlock( &pLogger->__mutex );
+		if ( !queue->empty() ) {
+			for ( it = last = queue->begin() ; it != queue->end() ; ++it ) {
 				last = it;
-				if ( logger->m_bUseStdout ) {
-					fprintf( stdout, "%s", it->toLocal8Bit().data() );
-					fflush( stdout );
+				if ( pLogger->m_bUseStdout ) {
+					stdoutStream << *it;
+					stdoutStream.flush();
 				}
-				if( log_file ) {
-					fprintf( log_file, "%s", it->toLocal8Bit().data() );
-					fflush( log_file );
+				if ( bUseLogFile ) {
+					logFileStream << *it;
+					logFileStream.flush();
 				}
 			}
 			// remove all in front of last
-			pthread_mutex_lock( &logger->__mutex );
+			pthread_mutex_lock( &pLogger->__mutex );
 			queue->erase( queue->begin(), last );
 			queue->pop_front();
-			pthread_mutex_unlock( &logger->__mutex );
+			pthread_mutex_unlock( &pLogger->__mutex );
 		}
 	}
-	if ( log_file ) {
-		fprintf( log_file, "Stop logger" );
-		fclose( log_file );
+	if ( bUseLogFile ) {
+		logFileStream << "Stop logger";
 	}
+	logFile.close();
 #ifdef WIN32
 	::FreeConsole();
 #endif
 
-	fflush( stdout );
+	stderrStream.flush();
+	stdoutStream.flush();
 	pthread_exit( nullptr );
 	return nullptr;
 }
