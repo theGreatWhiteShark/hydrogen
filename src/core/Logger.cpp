@@ -29,6 +29,7 @@
 #include <QtCore/QDir>
 #include <QFile>
 #include <QTextStream>
+#include <QTextCodec>
 
 #ifdef WIN32
 #include <windows.h>
@@ -52,12 +53,15 @@ void* loggerThread_func( void* param ) {
 #  ifdef H2CORE_HAVE_DEBUG
 	::AllocConsole();
 //	::SetConsoleTitle( "Hydrogen debug log" );
+	SetConsoleOutputCP( CP_UTF8 );
 	freopen( "CONOUT$", "wt", stdout );
 #  endif
 #endif
 
 	QTextStream stdoutStream( stdout );
+	stdoutStream.setCodec( QTextCodec::codecForName( "UTF-8" ) );
 	QTextStream stderrStream( stderr );
+	stderrStream.setCodec( QTextCodec::codecForName( "UTF-8" ) );
 
 	bool bUseLogFile = pLogger->__use_file;
 	QFile logFile( pLogger->m_sLogFilePath );
@@ -65,6 +69,7 @@ void* loggerThread_func( void* param ) {
 	if ( bUseLogFile ) {
 		if ( logFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
 			logFileStream.setDevice( &logFile );
+			logFileStream.setCodec( QTextCodec::codecForName( "UTF-8" ) );
 		}
 		else {
 			stderrStream <<
