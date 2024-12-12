@@ -617,6 +617,12 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new IndexedTreeItem( 0x413, pTopLevelItem, tr( "Alternate Instrument Line" ) );
 	new IndexedTreeItem( 0x414, pTopLevelItem, tr( "Selected Instrument Line" ) );
 	new IndexedTreeItem( 0x415, pTopLevelItem, tr( "Selected Instrument Line Text" ) );
+	new IndexedTreeItem( 0x416, pTopLevelItem, tr( "Type-Only Line" ) );
+	new IndexedTreeItem( 0x417, pTopLevelItem, tr( "Type-Only Line Text" ) );
+	new IndexedTreeItem( 0x418, pTopLevelItem, tr( "Alternate Type-Only Line" ) );
+	new IndexedTreeItem( 0x419, pTopLevelItem, tr( "Type-Only Octave Line" ) );
+	new IndexedTreeItem( 0x41a, pTopLevelItem, tr( "Selected Type-Only Line" ) );
+	new IndexedTreeItem( 0x41b, pTopLevelItem, tr( "Selected Type-Only Line Text" ) );
 
 	colorButton->setEnabled( false );
 
@@ -1897,6 +1903,12 @@ std::unique_ptr<QColor> PreferencesDialog::getColorById( int nId, const H2Core::
 	case 0x413: return std::make_unique<QColor>(colorTheme.m_patternEditor_instrumentAlternateRowColor);
 	case 0x414: return std::make_unique<QColor>(colorTheme.m_patternEditor_instrumentSelectedRowColor);
 	case 0x415: return std::make_unique<QColor>(colorTheme.m_patternEditor_instrumentSelectedRowTextColor);
+	case 0x416: return std::make_unique<QColor>(colorTheme.m_patternEditor_typeOnlyRowColor);
+	case 0x417: return std::make_unique<QColor>(colorTheme.m_patternEditor_typeOnlyRowTextColor);
+	case 0x418: return std::make_unique<QColor>(colorTheme.m_patternEditor_typeOnlyAlternateRowColor);
+	case 0x419: return std::make_unique<QColor>(colorTheme.m_patternEditor_typeOnlyOctaveRowColor);
+	case 0x41a: return std::make_unique<QColor>(colorTheme.m_patternEditor_typeOnlySelectedRowColor);
+	case 0x41b: return std::make_unique<QColor>(colorTheme.m_patternEditor_typeOnlySelectedRowTextColor);
 	default: return nullptr;
 	}
 
@@ -2031,6 +2043,18 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 	case 0x414:  colorTheme.m_patternEditor_instrumentSelectedRowColor = color;
 		break;
 	case 0x415:  colorTheme.m_patternEditor_instrumentSelectedRowTextColor = color;
+		break;
+	case 0x416:  colorTheme.m_patternEditor_typeOnlyRowColor = color;
+		break;
+	case 0x417:  colorTheme.m_patternEditor_typeOnlyRowTextColor = color;
+		break;
+	case 0x418:  colorTheme.m_patternEditor_typeOnlyAlternateRowColor = color;
+		break;
+	case 0x419:  colorTheme.m_patternEditor_typeOnlyOctaveRowColor = color;
+		break;
+	case 0x41a:  colorTheme.m_patternEditor_typeOnlySelectedRowColor = color;
+		break;
+	case 0x41b:  colorTheme.m_patternEditor_typeOnlySelectedRowTextColor = color;
 		break;
 	default: WARNINGLOG( "Unknown ID" );
 	}

@@ -3971,6 +3971,30 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Selected Instrument Line Text</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Type-Only Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type-Only Line Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alternate Type-Only Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Type-Only Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Type-Only Line Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type-Only Octave Line</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>

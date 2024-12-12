@@ -92,6 +92,12 @@ public:
 	QColor m_patternEditor_instrumentAlternateRowColor;
 	QColor m_patternEditor_instrumentSelectedRowColor;
 	QColor m_patternEditor_instrumentSelectedRowTextColor;
+	QColor m_patternEditor_typeOnlyRowColor;
+	QColor m_patternEditor_typeOnlyRowTextColor;
+	QColor m_patternEditor_typeOnlyAlternateRowColor;
+	QColor m_patternEditor_typeOnlyOctaveRowColor;
+	QColor m_patternEditor_typeOnlySelectedRowColor;
+	QColor m_patternEditor_typeOnlySelectedRowTextColor;
 
 	QColor m_selectionHighlightColor;
 	QColor m_selectionInactiveColor;

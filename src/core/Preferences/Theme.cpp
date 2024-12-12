@@ -64,6 +64,12 @@ ColorTheme::ColorTheme()
 	, m_patternEditor_instrumentAlternateRowColor( QColor( 106, 111, 126 ) )
 	, m_patternEditor_instrumentSelectedRowColor( QColor( 149, 157, 178 ) )
 	, m_patternEditor_instrumentSelectedRowTextColor( QColor( 0, 0, 0 ) )
+	, m_patternEditor_typeOnlyRowColor( QColor( 128, 134, 152 ) )
+	, m_patternEditor_typeOnlyRowTextColor( QColor( 240, 240, 240 ) )
+	, m_patternEditor_typeOnlyAlternateRowColor( QColor( 106, 111, 126 ) )
+	, m_patternEditor_typeOnlyOctaveRowColor( QColor( 106, 111, 126 ) )
+	, m_patternEditor_typeOnlySelectedRowColor( QColor( 149, 157, 178 ) )
+	, m_patternEditor_typeOnlySelectedRowTextColor( QColor( 0, 0, 0 ) )
 	, m_selectionHighlightColor( QColor( 255, 255, 255 ) )
 	, m_selectionInactiveColor( QColor( 199, 199, 199 ) )
 	, m_windowColor( QColor( 58, 62, 72 ) )
@@ -160,6 +166,18 @@ void ColorTheme::saveTo( XMLNode& parent ) const {
 		"instrumentSelectedRowColor", m_patternEditor_instrumentSelectedRowColor );
 	patternEditorNode.write_color(
 		"instrumentSelectedRowTextColor", m_patternEditor_instrumentSelectedRowTextColor );
+	patternEditorNode.write_color(
+		"typeOnlyRowColor", m_patternEditor_typeOnlyRowColor );
+	patternEditorNode.write_color(
+		"typeOnlyRowTextColor", m_patternEditor_typeOnlyRowTextColor );
+	patternEditorNode.write_color(
+		"typeOnlyAlternateRowColor", m_patternEditor_typeOnlyAlternateRowColor );
+	patternEditorNode.write_color(
+		"typeOnlyOctaveRowColor", m_patternEditor_typeOnlyOctaveRowColor );
+	patternEditorNode.write_color(
+		"typeOnlySelectedRowColor", m_patternEditor_typeOnlySelectedRowColor );
+	patternEditorNode.write_color(
+		"typeOnlySelectedRowTextColor", m_patternEditor_typeOnlySelectedRowTextColor );
 
 	XMLNode selectionNode = colorThemeNode.createNode( "selection" );
 	selectionNode.write_color( "highlightColor", m_selectionHighlightColor );
@@ -356,6 +374,36 @@ ColorTheme ColorTheme::loadFrom( const XMLNode& parent, const bool bSilent ) {
 			patternEditorNode.read_color(
 				"instrumentSelectedRowTextColor",
 				colorTheme.m_patternEditor_instrumentSelectedRowTextColor, false, false,
+				bSilent );
+		colorTheme.m_patternEditor_typeOnlyRowColor =
+			patternEditorNode.read_color(
+				"typeOnlyRowColor",
+				colorTheme.m_patternEditor_typeOnlyRowColor, false, false,
+				bSilent );
+		colorTheme.m_patternEditor_typeOnlyRowTextColor =
+			patternEditorNode.read_color(
+				"typeOnlyRowTextColor",
+				colorTheme.m_patternEditor_typeOnlyRowTextColor, false, false,
+				bSilent );
+		colorTheme.m_patternEditor_typeOnlyAlternateRowColor =
+			patternEditorNode.read_color(
+				"typeOnlyAlternateRowColor",
+				colorTheme.m_patternEditor_typeOnlyAlternateRowColor, false,
+				false, bSilent );
+		colorTheme.m_patternEditor_typeOnlyOctaveRowColor =
+			patternEditorNode.read_color(
+				"typeOnlyOctaveRowColor",
+				colorTheme.m_patternEditor_typeOnlyOctaveRowColor, false,
+				false, bSilent );
+		colorTheme.m_patternEditor_typeOnlySelectedRowColor =
+			patternEditorNode.read_color(
+				"typeOnlySelectedRowColor",
+				colorTheme.m_patternEditor_typeOnlySelectedRowColor, false, false,
+				bSilent );
+		colorTheme.m_patternEditor_typeOnlySelectedRowTextColor =
+			patternEditorNode.read_color(
+				"typeOnlySelectedRowTextColor",
+				colorTheme.m_patternEditor_typeOnlySelectedRowTextColor, false, false,
 				bSilent );
 	}
 	else {
@@ -578,6 +626,24 @@ QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_patternEditor_instrumentSelectedRowTextColor: %3\n" )
 					 .arg( sPrefix ).arg( s )
 					 .arg( m_patternEditor_instrumentSelectedRowTextColor.name() ) )
+			.append( QString( "%1%2m_patternEditor_typeOnlyRowColor: %3\n" )
+					 .arg( sPrefix ).arg( s )
+					 .arg( m_patternEditor_typeOnlyRowColor.name() ) )
+			.append( QString( "%1%2m_patternEditor_typeOnlyRowTextColor: %3\n" )
+					 .arg( sPrefix ).arg( s )
+					 .arg( m_patternEditor_typeOnlyRowTextColor.name() ) )
+			.append( QString( "%1%2m_patternEditor_typeOnlyAlternateRowColor: %3\n" )
+					 .arg( sPrefix ).arg( s )
+					 .arg( m_patternEditor_typeOnlyAlternateRowColor.name() ) )
+			.append( QString( "%1%2m_patternEditor_typeOnlyOctaveRowColor: %3\n" )
+					 .arg( sPrefix ).arg( s )
+					 .arg( m_patternEditor_typeOnlyOctaveRowColor.name() ) )
+			.append( QString( "%1%2m_patternEditor_typeOnlySelectedRowColor: %3\n" )
+					 .arg( sPrefix ).arg( s )
+					 .arg( m_patternEditor_typeOnlySelectedRowColor.name() ) )
+			.append( QString( "%1%2m_patternEditor_typeOnlySelectedRowTextColor: %3\n" )
+					 .arg( sPrefix ).arg( s )
+					 .arg( m_patternEditor_typeOnlySelectedRowTextColor.name() ) )
 			.append( QString( "%1%2m_selectionHighlightColor: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_selectionHighlightColor.name() ) )
 			.append( QString( "%1%2m_selectionInactiveColor: %3\n" ).arg( sPrefix )
@@ -707,6 +773,18 @@ QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_patternEditor_instrumentSelectedRowColor.name() ) )
 			.append( QString( ", m_patternEditor_instrumentSelectedRowTextColor: %1" )
 					 .arg( m_patternEditor_instrumentSelectedRowTextColor.name() ) )
+			.append( QString( ", m_patternEditor_typeOnlyRowColor: %1" )
+					 .arg( m_patternEditor_typeOnlyRowColor.name() ) )
+			.append( QString( ", m_patternEditor_typeOnlyRowTextColor: %1" )
+					 .arg( m_patternEditor_typeOnlyRowTextColor.name() ) )
+			.append( QString( ", m_patternEditor_typeOnlyAlternateRowColor: %1" )
+					 .arg( m_patternEditor_typeOnlyAlternateRowColor.name() ) )
+			.append( QString( ", m_patternEditor_typeOnlyOctaveRowColor: %1" )
+					 .arg( m_patternEditor_typeOnlyOctaveRowColor.name() ) )
+			.append( QString( ", m_patternEditor_typeOnlySelectedRowColor: %1" )
+					 .arg( m_patternEditor_typeOnlySelectedRowColor.name() ) )
+			.append( QString( ", m_patternEditor_typeOnlySelectedRowTextColor: %1" )
+					 .arg( m_patternEditor_typeOnlySelectedRowTextColor.name() ) )
 			.append( QString( ", m_selectionHighlightColor: %1" )
 					 .arg( m_selectionHighlightColor.name() ) )
 			.append( QString( ", m_selectionInactiveColor: %1" )

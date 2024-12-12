@@ -190,16 +190,33 @@ void PianoRollEditor::drawFocus( QPainter& painter ) {
 void PianoRollEditor::createBackground()
 {
 	const auto pPref = H2Core::Preferences::get_instance();
-	
-	const QColor backgroundColor = pPref->getTheme().m_color.m_patternEditor_backgroundColor;
-	const QColor backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
-	const QColor alternateRowColor = pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
-	const QColor octaveColor = pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
+	const auto colorTheme = pPref->getTheme().m_color;
+
+	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
+
+	const QColor backgroundInactiveColor = colorTheme.m_windowColor;
+	QColor backgroundColor, alternateRowColor, octaveColor, textColor;
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 ! selectedRow.sType.isEmpty() ) {
+		// type-only row
+		backgroundColor = colorTheme.m_patternEditor_typeOnlyRowColor;
+		alternateRowColor = colorTheme.m_patternEditor_typeOnlyAlternateRowColor;
+		octaveColor = colorTheme.m_patternEditor_typeOnlyOctaveRowColor;
+		textColor = colorTheme.m_patternEditor_typeOnlyRowTextColor;
+	}
+	else {
+		backgroundColor = colorTheme.m_patternEditor_backgroundColor;
+		alternateRowColor = colorTheme.m_patternEditor_alternateRowColor;
+		octaveColor = colorTheme.m_patternEditor_octaveRowColor;
+		textColor = colorTheme.m_patternEditor_textColor;
+	}
+
 	// The line corresponding to the default pitch set to new notes
 	// will be highlighted.
 	const QColor baseNoteColor = octaveColor.lighter( 119 );
-	const QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
-	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+	const QColor lineColor( colorTheme.m_patternEditor_lineColor );
+	const QColor lineInactiveColor( colorTheme.m_windowTextColor.darker( 170 ) );
 
 	unsigned start_x = 0;
 	unsigned end_x = m_nActiveWidth;
@@ -268,9 +285,10 @@ void PianoRollEditor::createBackground()
 	}
 
 	//draw text
-	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
+				getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	p.setFont( font );
-	p.setPen( pPref->getTheme().m_color.m_patternEditor_textColor );
+	p.setPen( textColor );
 
 	int offset = 0;
 	int insertx = 3;

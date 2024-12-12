@@ -1070,18 +1070,24 @@ void NotePropertiesRuler::leaveEvent( QEvent *ev ) {
 void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 												 int nIncrement ) {
 	
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto colorTheme =
+		H2Core::Preferences::get_instance()->getTheme().m_color;
 
-	const QColor borderColor(
-		pPref->getTheme().m_color.m_patternEditor_lineColor );
-	const QColor lineColor(
-		pPref->getTheme().m_color.m_patternEditor_line5Color );
-	const QColor lineInactiveColor(
-		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
-	const QColor backgroundColor(
-		pPref->getTheme().m_color.m_patternEditor_backgroundColor );
-	const QColor backgroundInactiveColor(
-		pPref->getTheme().m_color.m_windowColor );
+	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
+
+	const QColor borderColor( colorTheme.m_patternEditor_lineColor );
+	const QColor lineColor( colorTheme.m_patternEditor_line5Color );
+	const QColor lineInactiveColor( colorTheme.m_windowTextColor.darker( 170 ) );
+	QColor backgroundColor;
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 ! selectedRow.sType.isEmpty() ) {
+		backgroundColor = colorTheme.m_patternEditor_typeOnlyRowColor;
+	}
+	else {
+		backgroundColor = colorTheme.m_patternEditor_backgroundColor;
+	}
+	const QColor backgroundInactiveColor( colorTheme.m_windowColor );
 
 	if ( nHeight == 0 ) {
 		nHeight = height();

@@ -581,29 +581,58 @@ void SidebarRow::updateStyleSheet() {
 	const auto colorTheme = Preferences::get_instance()->getTheme().m_color;
 
 	QColor textColor, textPatternColor, backgroundPatternColor;
-	if ( m_bIsSelected ) {
-		backgroundPatternColor =
-			colorTheme.m_patternEditor_selectedRowColor.darker( 114 );
-		m_backgroundColor =
-			colorTheme.m_patternEditor_instrumentSelectedRowColor;
-		textPatternColor = colorTheme.m_patternEditor_selectedRowTextColor;
-		textColor = colorTheme.m_patternEditor_instrumentSelectedRowTextColor;
-	}
-	else if ( m_row.bAlternate ) {
-		backgroundPatternColor =
-			colorTheme.m_patternEditor_alternateRowColor.darker( 132 );
-		m_backgroundColor =
-			colorTheme.m_patternEditor_instrumentAlternateRowColor;
-		textPatternColor = colorTheme.m_patternEditor_textColor;
-		textColor = colorTheme.m_patternEditor_instrumentRowTextColor;
+	if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+		if ( m_bIsSelected ) {
+			backgroundPatternColor =
+				colorTheme.m_patternEditor_selectedRowColor.darker( 114 );
+			m_backgroundColor =
+				colorTheme.m_patternEditor_instrumentSelectedRowColor;
+			textPatternColor = colorTheme.m_patternEditor_selectedRowTextColor;
+			textColor = colorTheme.m_patternEditor_instrumentSelectedRowTextColor;
+		}
+		else if ( m_row.bAlternate ) {
+			backgroundPatternColor =
+				colorTheme.m_patternEditor_alternateRowColor.darker( 132 );
+			m_backgroundColor =
+				colorTheme.m_patternEditor_instrumentAlternateRowColor;
+			textPatternColor = colorTheme.m_patternEditor_textColor;
+			textColor = colorTheme.m_patternEditor_instrumentRowTextColor;
+		}
+		else {
+			backgroundPatternColor =
+				colorTheme.m_patternEditor_backgroundColor.darker( 120 );
+			m_backgroundColor =
+				colorTheme.m_patternEditor_instrumentRowColor;
+			textPatternColor = colorTheme.m_patternEditor_textColor;
+			textColor = colorTheme.m_patternEditor_instrumentRowTextColor;
+		}
 	}
 	else {
-		backgroundPatternColor =
-			colorTheme.m_patternEditor_backgroundColor.darker( 120 );
-		m_backgroundColor =
-			colorTheme.m_patternEditor_instrumentRowColor;
-		textPatternColor = colorTheme.m_patternEditor_textColor;
-		textColor = colorTheme.m_patternEditor_instrumentRowTextColor;
+		// Type-only row
+		if ( m_bIsSelected ) {
+			backgroundPatternColor =
+				colorTheme.m_patternEditor_typeOnlySelectedRowColor.darker( 114 );
+			m_backgroundColor =
+				colorTheme.m_patternEditor_instrumentSelectedRowColor;
+			textPatternColor = colorTheme.m_patternEditor_typeOnlySelectedRowTextColor;
+			textColor = colorTheme.m_patternEditor_instrumentSelectedRowTextColor;
+		}
+		else if ( m_row.bAlternate ) {
+			backgroundPatternColor =
+				colorTheme.m_patternEditor_typeOnlyAlternateRowColor.darker( 132 );
+			m_backgroundColor =
+				colorTheme.m_patternEditor_instrumentAlternateRowColor;
+			textPatternColor = colorTheme.m_patternEditor_typeOnlyRowTextColor;
+			textColor = colorTheme.m_patternEditor_instrumentRowTextColor;
+		}
+		else {
+			backgroundPatternColor =
+				colorTheme.m_patternEditor_typeOnlyRowColor.darker( 120 );
+			m_backgroundColor =
+				colorTheme.m_patternEditor_instrumentRowColor;
+			textPatternColor = colorTheme.m_patternEditor_typeOnlyRowTextColor;
+			textColor = colorTheme.m_patternEditor_instrumentRowTextColor;
+		}
 	}
 
 	setColor( m_backgroundColor );
