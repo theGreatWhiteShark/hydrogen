@@ -302,6 +302,11 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		/** Update #m_db based on #H2Core::Song::m_pDrumkit and #m_pPattern. */
 		void updateDB();
 
+		/** If set by the user, type labels in the sidebar will only be shown in
+		 * case there is a note not associated with the current drumkit in
+		 * #m_pPattern. */
+		void updateTypeLabelVisibility();
+
 		/** Returns both notex hovered by mouse and keyboard. */
 		const std::map< std::shared_ptr<H2Core::Pattern>,
 						std::vector< std::shared_ptr<H2Core::Note> > >&
@@ -460,6 +465,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		bool m_bIsUsingTriplets;
 
 		bool m_bPatternSelectedViaTab;
+
+		bool m_bTypeLabelsMustBeVisible;
 
 		void updateHoveredNotes();
 		/** Combined version of both #m_hoveredNotesMouse and

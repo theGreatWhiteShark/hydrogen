@@ -1322,6 +1322,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Instrument types must be unique!</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Settings</source>
+        <extracomment>Indicates a menu section in which behavioural customizations can be * done.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
