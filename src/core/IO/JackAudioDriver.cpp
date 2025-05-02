@@ -309,6 +309,8 @@ void JackAudioDriver::unregisterTrackPorts( InstrumentPorts ports ) {
 		return;
 	}
 
+	DEBUGLOG( ports.sPortNameBase );
+
 	if ( ports.Left != nullptr ) {
 		if ( jack_port_unregister( m_pClient, ports.Left ) != 0 ) {
 			ERRORLOG( QString( "Unable to unregister left port of [%1]" )
@@ -368,6 +370,7 @@ float* JackAudioDriver::getTrackBuffer( std::shared_ptr<Instrument> pInstrument,
 void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 									  std::shared_ptr<Drumkit> pOldDrumkit )
 {
+	DEBUGLOG("");
 	if ( Preferences::get_instance()->m_bJackTrackOuts == false ) {
 		return;
 	}
@@ -523,6 +526,8 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 			}
 		}
 
+		INFOLOG( sName );
+
 		return sName;
 	};
 
@@ -536,23 +541,32 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 				pMapped = pDrumkit->mapInstrument(
 					ppInstrument->getType(), ppInstrument->getId(), pOldDrumkit );
 				if ( pMapped != nullptr ) {
+					DEBUGLOG( QString( "Instrument mapped [%1] -> [%2]" )
+							  .arg( ppInstrument->getName() )
+							  .arg( pMapped->getName() ) );
 					m_portMap[ pMapped ] = InstrumentPorts( pports );
 
 					if ( pMapped != ppInstrument ) {
 						// In case we deal with the same instrument, there is no
 						// need for the death row.
 						pports.marked = InstrumentPorts::Marked::ForRemoval;
+						DEBUGLOG( "mark for removal" );
 					}
 
 					sMappedName = portNameFrom( pMapped, m_portMap );
 					if ( m_portMap[ pMapped ].sPortNameBase != sMappedName ) {
+						DEBUGLOG( QString( "rename [%1] -> [%2]" )
+								  .arg( m_portMap[ pMapped ].sPortNameBase )
+								  .arg( sMappedName ) );
 						m_portMap[ pMapped ].sPortNameBase = sMappedName;
 						if ( m_portMap[ pMapped ].Left != nullptr ) {
+							DEBUGLOG("r l");
 							jack_port_rename(
 								m_pClient, m_portMap[ pMapped ].Left,
 								QString( "%1_L" ).arg( sMappedName ).toLocal8Bit() );
 						}
 						if ( m_portMap[ pMapped ].Right != nullptr ) {
+							DEBUGLOG("r r");
 							jack_port_rename(
 								m_pClient, m_portMap[ pMapped ].Right,
 								QString( "%1_R" ).arg( sMappedName ).toLocal8Bit() );
@@ -561,10 +575,12 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 				}
 				else {
 					pports.marked = InstrumentPorts::Marked::ForDeath;
+					DEBUGLOG( "mark for death" );
 				}
 			}
 			else {
 				pports.marked = InstrumentPorts::Marked::ForDeath;
+				DEBUGLOG( "mark for death" );
 			}
 		}
 	}
@@ -576,6 +592,7 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 			continue;
 		}
 
+		DEBUGLOG( QString( "New port for instrument [%1]" ).arg( ppInstrument->getName() ) );
 		// No matching port found. Register a new ones.
 		auto ports = createPorts(
 			ppInstrument, portNameFrom( ppInstrument, m_portMap ), &bError );
@@ -596,14 +613,18 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 
 	// Clean up all ports not required anymore.
 	cleanupPerTrackPorts();
+	DEBUGLOG("DONE");
 }
 
 void JackAudioDriver::cleanupPerTrackPorts() {
+	DEBUGLOG( "" );
 	for ( auto it = m_portMap.cbegin(); it != m_portMap.cend(); ) {
 		if ( it->first != nullptr &&
 			 it->second.marked != InstrumentPorts::Marked::None &&
 			 ! it->first->isQueued() ) {
+			DEBUGLOG( QString( "cleaning up %1" ).arg( it->first->getName() ) );
 			if ( it->second.marked == InstrumentPorts::Marked::ForDeath ) {
+				DEBUGLOG( "death" );
 				unregisterTrackPorts( it->second );
 			}
 			m_portMap.erase( it++ );
@@ -612,6 +633,7 @@ void JackAudioDriver::cleanupPerTrackPorts() {
 			++it;
 		}
 	}
+	DEBUGLOG( "DONE" );
 }
 
 const jack_position_t& JackAudioDriver::getJackPosition() const {
