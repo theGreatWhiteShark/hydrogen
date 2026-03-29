@@ -387,6 +387,9 @@ JackDriver::JackDriver( JackProcessCallback processCallback, Mode mode )
 	m_sAudioOutputPortName2 = pPreferences->m_sJackPortName2;
 
 	m_JackTransportState = JackTransportStopped;
+
+	m_pTimebaseCallbackPos =
+		std::make_shared<Transport>( Transport::Type::JackTimebaseCallback );
 }
 
 JackDriver::~JackDriver()
@@ -2104,7 +2107,30 @@ void JackDriver::JackTimebaseCallback(
 	}
 
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-	std::shared_ptr<Transport> pPos = nullptr;
+
+	const auto posFromFrame = [&]( long long nFrame,
+								   jack_position_t* pJackPosition ) {
+		std::shared_ptr<Transport> pPos = nullptr;
+		if ( nFrame == pAudioEngine->getPlayhead()->getFrame() ) {
+			// Requested transport position coincides with the current one of
+			// the Audio Engine. We can reuse it.
+			pPos = pAudioEngine->getPlayhead();
+		}
+		else {
+			const auto fTick = Transport::computeTickFromFrame( nFrame );
+			pAudioEngine->updateTransport(
+				fTick, nFrame, pDriver->m_pTimebaseCallbackPos
+			);
+			pPos = pDriver->m_pTimebaseCallbackPos;
+		}
+#if JACK_DEBUG
+		J_DEBUGLOG(
+			QString( "Interal transport pos: %1" ).arg( pPos->toQString() )
+		);
+#endif
+
+		transportToBBT( *pPos, pJackPosition );
+	};
 
 	pAudioEngine->lock( RIGHT_HERE );
 
@@ -2118,25 +2144,6 @@ void JackDriver::JackTimebaseCallback(
 	}
 
 	const long long nInitialFrame = pJackPosition->frame;
-
-	const auto posFromFrame = [&]( long long nFrame,
-								   jack_position_t* pJackPosition ) {
-		if ( nFrame == pAudioEngine->getPlayhead()->getFrame() ) {
-			// Requested transport position coincides with the current one of
-			// the Audio Engine. We can reuse it.
-			pPos = pAudioEngine->getPlayhead();
-		}
-		else {
-			pPos = std::make_shared<Transport>(
-				Transport::Type::JackTimebaseCallback
-			);
-			const auto fTick =
-				Transport::computeTickFromFrame( nFrame );
-			pAudioEngine->updateTransport( fTick, nFrame, pPos );
-		}
-
-		transportToBBT( *pPos, pJackPosition );
-	};
 
 	// In the face of heavy load - can be triggered by enabling JackDriver,
 	// Transport, and AudioEngine debug logs - XRuns occur and the frame
