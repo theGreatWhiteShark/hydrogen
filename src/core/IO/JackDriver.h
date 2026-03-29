@@ -568,8 +568,6 @@ class JackDriver : public Object<JackDriver>,
 	std::queue<MidiMessage> m_outputMessageQueue;
 	/** @} */
 
-	std::shared_ptr<Transport> m_pTimebaseCallbackPos;
-
 #ifdef HAVE_INTEGRATION_TESTS
 	/** Remember the last location we relocate to in order to detect relocation
 	 * loops during the integration tests.*/
